@@ -19,8 +19,10 @@ Play terminal sounds as Claude streams its responses:
 
 1. Clone this repository into your Claude Code plugins directory:
    ```bash
-   git clone https://github.com/guruswami-ai/hyper-robco ~/.claude/plugins/hyper-robco
+   git clone https://github.com/YOUR_USERNAME/hyper-robco ~/.claude/plugins/hyper-robco
    ```
+   
+   Replace `YOUR_USERNAME` with your GitHub username if you forked the repository.
 
 2. The plugin will be automatically detected by Claude Code on restart
 

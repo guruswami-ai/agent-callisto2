@@ -90,15 +90,15 @@ function getRandomSound(soundList) {
     return null;
   }
   
-  let newIndex = Math.floor(Math.random() * soundList.length);
+  let index = Math.floor(Math.random() * soundList.length);
   
   // Avoid playing the same sound twice in a row
-  if (newIndex === lastSoundIndex && soundList.length > 1) {
-    newIndex = (newIndex + 1) % soundList.length;
+  if (index === lastSoundIndex && soundList.length > 1) {
+    index = (index + 1) % soundList.length;
   }
   
-  lastSoundIndex = newIndex;
-  return soundList[newIndex];
+  lastSoundIndex = index;
+  return soundList[index];
 }
 
 /**
@@ -162,7 +162,7 @@ async function onStreamingResponse(context) {
     // Play enter sound for newlines
     if (char === '\n') {
       playEnterSound();
-    } else if (char.trim() !== '') {
+    } else if (/\S/.test(char)) {
       // Play character sound for non-whitespace characters
       playCharSound();
     }
