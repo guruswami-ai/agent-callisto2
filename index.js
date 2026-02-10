@@ -96,6 +96,7 @@ const STATUS_PATTERNS = [
 // Track recent notifications to avoid spam
 let lastNotificationTime = 0;
 const NOTIFICATION_COOLDOWN = 3000; // 3 seconds between notifications
+const NOTIFICATION_BUFFER_SIZE = 500; // Keep last 500 chars of output
 
 function shouldPlayNotification(text) {
     if (!global.settings.notificationsEnabled) {
@@ -123,7 +124,8 @@ exports.decorateTerm = (Term, { React, notify }) => {
     constructor (props, context) {
       super(props, context);
       this._onTerminal = this._onTerminal.bind(this);
-      this._dataDisposable = null;
+      this._originalWrite = null;
+      this._term = null;
     }
 
     _onTerminal (term) {
@@ -173,44 +175,53 @@ exports.decorateTerm = (Term, { React, notify }) => {
         }
         term.installKeyboard();
         
-        // Hook into terminal data to detect status notifications
+        // Hook into terminal output to detect status notifications
         // This implementation monitors terminal output for status messages
         // and plays audio notifications when completion/status patterns are detected.
         // The system uses a rolling buffer to capture recent output and avoids
         // spam with a cooldown timer between notifications.
-        if (term.onData) {
-            // Clean up existing listener if any
-            if (this._dataDisposable) {
-                this._dataDisposable.dispose();
+        
+        // Store original write method
+        const originalWrite = term.write.bind(term);
+        let outputBuffer = '';
+        
+        // Intercept terminal write to monitor output
+        term.write = function(data) {
+            // Call original write first
+            const result = originalWrite(data);
+            
+            if (!global.settings.enabled || !global.settings.notificationsEnabled) {
+                return result;
             }
             
-            let dataBuffer = '';
-            this._dataDisposable = term.onData((data) => {
-                if (!global.settings.enabled || !global.settings.notificationsEnabled) {
-                    return;
-                }
-                
-                // Append data to buffer
-                dataBuffer += data;
-                
-                // Keep buffer size manageable (last 500 chars)
-                if (dataBuffer.length > 500) {
-                    dataBuffer = dataBuffer.slice(-500);
-                }
-                
-                // Check for notification patterns
-                if (shouldPlayNotification(dataBuffer)) {
-                    getRandom(SOUNDS.NOTIFICATIONS).play();
-                }
-            });
-        }
+            // Append data to buffer (convert to string if needed)
+            const dataStr = typeof data === 'string' ? data : String(data);
+            outputBuffer += dataStr;
+            
+            // Keep buffer size manageable
+            if (outputBuffer.length > NOTIFICATION_BUFFER_SIZE) {
+                outputBuffer = outputBuffer.slice(-NOTIFICATION_BUFFER_SIZE);
+            }
+            
+            // Check for notification patterns
+            if (shouldPlayNotification(outputBuffer)) {
+                getRandom(SOUNDS.NOTIFICATIONS).play();
+            }
+            
+            return result;
+        };
+        
+        // Store reference for cleanup
+        this._originalWrite = originalWrite;
+        this._term = term;
     }
 
     componentWillUnmount() {
-        // Clean up the data listener when component unmounts
-        if (this._dataDisposable) {
-            this._dataDisposable.dispose();
-            this._dataDisposable = null;
+        // Restore original write method when component unmounts
+        if (this._term && this._originalWrite) {
+            this._term.write = this._originalWrite;
+            this._originalWrite = null;
+            this._term = null;
         }
     }
 

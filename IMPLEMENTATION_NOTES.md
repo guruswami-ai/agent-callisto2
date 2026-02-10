@@ -25,7 +25,7 @@ The system uses regular expressions to detect status messages in terminal output
 - **Deployment**: `deployment successful`, `deployment complete`
 - **Approval Requests**: `approval required`, `waiting for approval`, `ready for review`
 - **Merge Operations**: `merge completed`, `successfully merged`
-- **General Completion**: `operation completed`, `done`
+- **General Completion**: `operation completed`
 
 All patterns are case-insensitive to catch variations in output formatting.
 
@@ -44,9 +44,10 @@ Notification sounds are pseudo-randomly selected from a pool of available sound 
 The `getRandom()` function ensures consecutive notifications don't use the same sound.
 
 ### Integration Points
-1. **Terminal Data Stream**: Hooks into `term.onData()` to monitor output
+1. **Terminal Output Stream**: Intercepts the `term.write()` method to monitor terminal output
 2. **Settings Menu**: Adds menu option under Plugins to toggle notifications
 3. **Global Settings**: Maintains state via `global.settings.notificationsEnabled`
+4. **Proper Cleanup**: Restores original write method on component unmount to prevent memory leaks
 
 ## Usage
 
