@@ -90,8 +90,7 @@ const STATUS_PATTERNS = [
     /waiting for approval/i,
     /merge completed/i,
     /successfully merged/i,
-    /operation completed/i,
-    /done/i
+    /operation completed/i
 ];
 
 // Track recent notifications to avoid spam
@@ -124,6 +123,7 @@ exports.decorateTerm = (Term, { React, notify }) => {
     constructor (props, context) {
       super(props, context);
       this._onTerminal = this._onTerminal.bind(this);
+      this._dataDisposable = null;
     }
 
     _onTerminal (term) {
@@ -179,8 +179,13 @@ exports.decorateTerm = (Term, { React, notify }) => {
         // The system uses a rolling buffer to capture recent output and avoids
         // spam with a cooldown timer between notifications.
         if (term.onData) {
+            // Clean up existing listener if any
+            if (this._dataDisposable) {
+                this._dataDisposable.dispose();
+            }
+            
             let dataBuffer = '';
-            term.onData((data) => {
+            this._dataDisposable = term.onData((data) => {
                 if (!global.settings.enabled || !global.settings.notificationsEnabled) {
                     return;
                 }
@@ -198,6 +203,14 @@ exports.decorateTerm = (Term, { React, notify }) => {
                     getRandom(SOUNDS.NOTIFICATIONS).play();
                 }
             });
+        }
+    }
+
+    componentWillUnmount() {
+        // Clean up the data listener when component unmounts
+        if (this._dataDisposable) {
+            this._dataDisposable.dispose();
+            this._dataDisposable = null;
         }
     }
 
