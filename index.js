@@ -73,6 +73,9 @@ function getRandom(list) {
 }
 
 // Status notification patterns
+// Based on research of common CI/CD and development workflow status messages
+// These patterns match completion messages, success notifications, and approval requests
+// Pattern matching is case-insensitive to catch variations in output
 const STATUS_PATTERNS = [
     /code review completed/i,
     /review completed/i,
@@ -171,6 +174,10 @@ exports.decorateTerm = (Term, { React, notify }) => {
         term.installKeyboard();
         
         // Hook into terminal data to detect status notifications
+        // This implementation monitors terminal output for status messages
+        // and plays audio notifications when completion/status patterns are detected.
+        // The system uses a rolling buffer to capture recent output and avoids
+        // spam with a cooldown timer between notifications.
         if (term.onData) {
             let dataBuffer = '';
             term.onData((data) => {
