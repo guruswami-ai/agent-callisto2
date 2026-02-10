@@ -1,10 +1,10 @@
 {
   "name": "hyper-robco",
   "version": "1.0.0",
-  "description": "Adds Fallout terminal sound effects to your Hyper terminal.",
+  "description": "Adds Fallout terminal sound effects to your Hyper terminal and Claude Code.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node test-plugin.js"
   },
   "author": "Smiley Barry <smiley@users.noreply.github.com>",
   "license": "GPL-3.0",
@@ -12,5 +12,15 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/smiley/hyper-robco.git"
-  }
+  },
+  "keywords": [
+    "hyper",
+    "hyper-plugin",
+    "claude-code",
+    "claude-plugin",
+    "fallout",
+    "terminal",
+    "sound-effects",
+    "audio"
+  ]
 }

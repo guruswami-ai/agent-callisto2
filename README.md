@@ -65,6 +65,16 @@ All sounds are from Fallout 3/New Vegas terminal interfaces.
 **Want to disable temporarily?**
 - Set `"enabled": false` in `.claude-plugin/config.json` or call `setEnabled(false)` from the hook module
 
+#### Testing
+
+You can verify the plugin is correctly configured by running:
+
+```bash
+npm test
+```
+
+This will check that all required files are present and properly formatted.
+
 ### Hyper Terminal Extension (Legacy)
 
 **Note**: Currently broken since Hyper migrated from `hterm` to `xterm.js`. Keeping for future reference.
