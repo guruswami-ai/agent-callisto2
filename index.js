@@ -143,23 +143,21 @@ function shouldPlayNotification(text) {
     
     if (verbosity === 'minimal') {
         // Minimal: Only critical errors and major completions (inspired by Agent Vibes)
+        // Reuse pattern categories to avoid duplication
         const minimalPatterns = [
             ...PATTERN_CATEGORIES.CRITICAL,
             /successfully completed/i,
-            /build succeeded/i,
-            /tests? passed/i,
-            /deployment (successful|complete)/i
+            ...PATTERN_CATEGORIES.COMPLETION.filter(p => 
+                p.source.includes('build') || 
+                p.source.includes('test') || 
+                p.source.includes('deployment')
+            )
         ];
         shouldTrigger = minimalPatterns.some(pattern => pattern.test(text));
     } else if (verbosity === 'verbose') {
-        // Verbose: All status patterns plus more general completion messages
-        const allPatterns = [
-            ...STATUS_PATTERNS,
-            ...PATTERN_CATEGORIES.CRITICAL,
-            ...PATTERN_CATEGORIES.COMPLETION,
-            ...PATTERN_CATEGORIES.APPROVAL
-        ];
-        shouldTrigger = allPatterns.some(pattern => pattern.test(text));
+        // Verbose: All status patterns (no need to merge categories as STATUS_PATTERNS is comprehensive)
+        shouldTrigger = STATUS_PATTERNS.some(pattern => pattern.test(text)) ||
+                       PATTERN_CATEGORIES.CRITICAL.some(pattern => pattern.test(text));
     } else {
         // Normal: Current behavior with standard status patterns
         shouldTrigger = STATUS_PATTERNS.some(pattern => pattern.test(text));
@@ -323,7 +321,7 @@ exports.decorateMenu = menu =>
             {
               label: 'Off',
               type: 'radio',
-              checked: global.settings.notificationVerbosity === 'off' || !global.settings.notificationsEnabled,
+              checked: global.settings.notificationVerbosity === 'off',
               click: () => {
                 global.settings.notificationsEnabled = false;
                 global.settings.notificationVerbosity = 'off';
@@ -332,7 +330,7 @@ exports.decorateMenu = menu =>
             {
               label: 'Minimal (Critical only)',
               type: 'radio',
-              checked: global.settings.notificationVerbosity === 'minimal' && global.settings.notificationsEnabled,
+              checked: global.settings.notificationVerbosity === 'minimal',
               click: () => {
                 global.settings.notificationsEnabled = true;
                 global.settings.notificationVerbosity = 'minimal';
@@ -341,7 +339,7 @@ exports.decorateMenu = menu =>
             {
               label: 'Normal',
               type: 'radio',
-              checked: global.settings.notificationVerbosity === 'normal' && global.settings.notificationsEnabled,
+              checked: global.settings.notificationVerbosity === 'normal',
               click: () => {
                 global.settings.notificationsEnabled = true;
                 global.settings.notificationVerbosity = 'normal';
@@ -350,7 +348,7 @@ exports.decorateMenu = menu =>
             {
               label: 'Verbose',
               type: 'radio',
-              checked: global.settings.notificationVerbosity === 'verbose' && global.settings.notificationsEnabled,
+              checked: global.settings.notificationVerbosity === 'verbose',
               click: () => {
                 global.settings.notificationsEnabled = true;
                 global.settings.notificationVerbosity = 'verbose';
