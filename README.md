@@ -27,10 +27,21 @@ Audio notifications play when certain status messages appear in the terminal out
 
 The notification sounds are pseudo-randomly selected from available sound effects and include a cooldown period to avoid spam (3 seconds between notifications).
 
+#### Verbosity Levels (Inspired by Agent Vibes TTS)
+Status notifications support multiple verbosity levels to control how often audio plays:
+- **Off**: No audio notifications
+- **Minimal**: Only critical events (errors, major completions like builds and tests)
+- **Normal**: All status messages (default)
+- **Verbose**: Extended pattern matching for comprehensive notifications
+
 ## Install
 For now, you need to `git clone` this repository into `~/.hyper_plugins/local/hyper-robco` and add `hyper-robco` to `localPlugins` in `.hyper.js`.
 
 ## Configuration
 Once installed, you can toggle sound effects from the Hyper menu:
 - **Plugins > Terminal sounds** - Enable/disable keyboard sound effects
-- **Plugins > Status notification sounds** - Enable/disable status notification audio alerts
+- **Plugins > Status notification sounds** - Choose notification verbosity:
+  - **Off** - No audio notifications
+  - **Minimal (Critical only)** - Only errors and major completions
+  - **Normal** - All status messages (default)
+  - **Verbose** - Extended notifications

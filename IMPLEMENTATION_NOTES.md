@@ -16,6 +16,16 @@ Claude's AI assistant can use various "tools" or "functions" that provide additi
 
 ## Implementation Details
 
+### Verbosity Control (Inspired by Agent Vibes TTS)
+The system now supports multiple verbosity levels for fine-grained control over notifications:
+
+1. **Off**: No audio notifications
+2. **Minimal**: Only critical events (errors, fatal issues, major completions like builds and tests)
+3. **Normal**: All standard status messages (default behavior)
+4. **Verbose**: Extended pattern matching for comprehensive coverage
+
+This approach is inspired by Agent Vibes TTS, which pioneered selective audio notifications with configurable verbosity in Claude Code environments.
+
 ### Pattern Matching
 The system uses regular expressions to detect status messages in terminal output:
 

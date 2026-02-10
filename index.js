@@ -20,7 +20,8 @@ if (process.type === "renderer") {
 } else {
     global.settings = {
         enabled: true,
-        notificationsEnabled: true
+        notificationsEnabled: true,
+        notificationVerbosity: 'normal' // 'off', 'minimal', 'normal', 'verbose'
     };
     
     function makePlayer(sound_name) {
@@ -93,6 +94,29 @@ const STATUS_PATTERNS = [
     /operation completed/i
 ];
 
+// Pattern categories for verbosity control (inspired by Agent Vibes TTS)
+const PATTERN_CATEGORIES = {
+    CRITICAL: [
+        /error/i,
+        /failed/i,
+        /failure/i,
+        /fatal/i
+    ],
+    COMPLETION: [
+        /completed/i,
+        /succeeded/i,
+        /successful/i,
+        /tests? passed/i,
+        /build succeeded/i,
+        /deployment complete/i
+    ],
+    APPROVAL: [
+        /approval (required|requested)/i,
+        /ready for review/i,
+        /waiting for approval/i
+    ]
+};
+
 // Track recent notifications to avoid spam
 let lastNotificationTime = 0;
 const NOTIFICATION_COOLDOWN = 3000; // 3 seconds between notifications
@@ -103,19 +127,49 @@ function shouldPlayNotification(text) {
         return false;
     }
     
+    const verbosity = global.settings.notificationVerbosity || 'normal';
+    
+    // Off means no notifications
+    if (verbosity === 'off') {
+        return false;
+    }
+    
     const now = Date.now();
     if (now - lastNotificationTime < NOTIFICATION_COOLDOWN) {
         return false;
     }
     
-    for (let pattern of STATUS_PATTERNS) {
-        if (pattern.test(text)) {
-            lastNotificationTime = now;
-            return true;
-        }
+    let shouldTrigger = false;
+    
+    if (verbosity === 'minimal') {
+        // Minimal: Only critical errors and major completions (inspired by Agent Vibes)
+        const minimalPatterns = [
+            ...PATTERN_CATEGORIES.CRITICAL,
+            /successfully completed/i,
+            /build succeeded/i,
+            /tests? passed/i,
+            /deployment (successful|complete)/i
+        ];
+        shouldTrigger = minimalPatterns.some(pattern => pattern.test(text));
+    } else if (verbosity === 'verbose') {
+        // Verbose: All status patterns plus more general completion messages
+        const allPatterns = [
+            ...STATUS_PATTERNS,
+            ...PATTERN_CATEGORIES.CRITICAL,
+            ...PATTERN_CATEGORIES.COMPLETION,
+            ...PATTERN_CATEGORIES.APPROVAL
+        ];
+        shouldTrigger = allPatterns.some(pattern => pattern.test(text));
+    } else {
+        // Normal: Current behavior with standard status patterns
+        shouldTrigger = STATUS_PATTERNS.some(pattern => pattern.test(text));
     }
     
-    return false;
+    if (shouldTrigger) {
+        lastNotificationTime = now;
+    }
+    
+    return shouldTrigger;
 }
 
 exports.decorateTerm = (Term, { React, notify }) => {
@@ -265,12 +319,44 @@ exports.decorateMenu = menu =>
         },
         {
           label: 'Status notification sounds',
-          checked: global.settings.notificationsEnabled,
-          type: 'checkbox',
-          click: (clickedItem) => {
-            global.settings.notificationsEnabled = !global.settings.notificationsEnabled;
-            clickedItem.checked = global.settings.notificationsEnabled;
-          },
+          submenu: [
+            {
+              label: 'Off',
+              type: 'radio',
+              checked: global.settings.notificationVerbosity === 'off' || !global.settings.notificationsEnabled,
+              click: () => {
+                global.settings.notificationsEnabled = false;
+                global.settings.notificationVerbosity = 'off';
+              }
+            },
+            {
+              label: 'Minimal (Critical only)',
+              type: 'radio',
+              checked: global.settings.notificationVerbosity === 'minimal' && global.settings.notificationsEnabled,
+              click: () => {
+                global.settings.notificationsEnabled = true;
+                global.settings.notificationVerbosity = 'minimal';
+              }
+            },
+            {
+              label: 'Normal',
+              type: 'radio',
+              checked: global.settings.notificationVerbosity === 'normal' && global.settings.notificationsEnabled,
+              click: () => {
+                global.settings.notificationsEnabled = true;
+                global.settings.notificationVerbosity = 'normal';
+              }
+            },
+            {
+              label: 'Verbose',
+              type: 'radio',
+              checked: global.settings.notificationVerbosity === 'verbose' && global.settings.notificationsEnabled,
+              click: () => {
+                global.settings.notificationsEnabled = true;
+                global.settings.notificationVerbosity = 'verbose';
+              }
+            }
+          ]
         }
       );
       return newItem;
