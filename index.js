@@ -19,7 +19,8 @@ if (process.type === "renderer") {
     }
 } else {
     global.settings = {
-        enabled: true
+        enabled: true,
+        notificationsEnabled: true
     };
     
     function makePlayer(sound_name) {
@@ -50,7 +51,13 @@ const SOUNDS = {
     'EVENTS': {
         'OPEN': makePlayer('poweron.mp3'),
         'CLOSE': makePlayer('poweroff.mp3'),
-    }
+    },
+    'NOTIFICATIONS': [
+        makePlayer('ui_hacking_charenter_01.wav'),
+        makePlayer('ui_hacking_charenter_02.wav'),
+        makePlayer('ui_hacking_charenter_03.wav'),
+        makePlayer('poweron.mp3'),
+    ]
 }
 
 function getRandom(list) {
@@ -63,6 +70,49 @@ function getRandom(list) {
     }
     list._lastNum = newRand;
     return list[newRand];
+}
+
+// Status notification patterns
+const STATUS_PATTERNS = [
+    /code review completed/i,
+    /review completed/i,
+    /task completed/i,
+    /build succeeded/i,
+    /build successful/i,
+    /tests? passed/i,
+    /deployment successful/i,
+    /deployment complete/i,
+    /ready for review/i,
+    /approval (required|requested)/i,
+    /waiting for approval/i,
+    /merge completed/i,
+    /successfully merged/i,
+    /operation completed/i,
+    /done/i
+];
+
+// Track recent notifications to avoid spam
+let lastNotificationTime = 0;
+const NOTIFICATION_COOLDOWN = 3000; // 3 seconds between notifications
+
+function shouldPlayNotification(text) {
+    if (!global.settings.notificationsEnabled) {
+        return false;
+    }
+    
+    const now = Date.now();
+    if (now - lastNotificationTime < NOTIFICATION_COOLDOWN) {
+        return false;
+    }
+    
+    for (let pattern of STATUS_PATTERNS) {
+        if (pattern.test(text)) {
+            lastNotificationTime = now;
+            return true;
+        }
+    }
+    
+    return false;
 }
 
 exports.decorateTerm = (Term, { React, notify }) => {
@@ -119,6 +169,29 @@ exports.decorateTerm = (Term, { React, notify }) => {
             term.keyboard.handlers_ = [handler].concat(term.keyboard.handlers_);
         }
         term.installKeyboard();
+        
+        // Hook into terminal data to detect status notifications
+        if (term.onData) {
+            let dataBuffer = '';
+            term.onData((data) => {
+                if (!global.settings.enabled || !global.settings.notificationsEnabled) {
+                    return;
+                }
+                
+                // Append data to buffer
+                dataBuffer += data;
+                
+                // Keep buffer size manageable (last 500 chars)
+                if (dataBuffer.length > 500) {
+                    dataBuffer = dataBuffer.slice(-500);
+                }
+                
+                // Check for notification patterns
+                if (shouldPlayNotification(dataBuffer)) {
+                    getRandom(SOUNDS.NOTIFICATIONS).play();
+                }
+            });
+        }
     }
 
     render () {
@@ -157,6 +230,15 @@ exports.decorateMenu = menu =>
           click: (clickedItem) => {
             global.settings.enabled = !global.settings.enabled;
             clickedItem.checked = global.settings.enabled;
+          },
+        },
+        {
+          label: 'Status notification sounds',
+          checked: global.settings.notificationsEnabled,
+          type: 'checkbox',
+          click: (clickedItem) => {
+            global.settings.notificationsEnabled = !global.settings.notificationsEnabled;
+            clickedItem.checked = global.settings.notificationsEnabled;
           },
         }
       );
