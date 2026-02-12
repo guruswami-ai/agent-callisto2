@@ -9,6 +9,7 @@ Add Fallout terminal sound effects to your terminal or AI assistant! This plugin
 
 - 🎮 Authentic Fallout terminal keyboard sounds
 - 🤖 **NEW**: Claude Code plugin support - hear keystrokes as Claude streams responses
+- 🔊 **NEW**: Optional Elevenlabs TTS integration for voice announcements of task completions
 - 🖥️ Original Hyper terminal extension support (currently broken due to xterm.js migration)
 
 ## Features
@@ -63,9 +64,26 @@ You can customize the plugin behavior by editing `.claude-plugin/config.json`:
   "enabled": true,          // Enable/disable sound effects
   "volume": 0.2,            // Volume level (0.0 to 1.0)
   "playOnStreamingOnly": true,  // Only play during streaming (not on finished responses)
-  "throttleMs": 10          // Delay between character sounds in milliseconds
+  "throttleMs": 10,         // Delay between character sounds in milliseconds
+  "tts": {
+    "enabled": false,       // Enable Elevenlabs TTS for status announcements
+    "apiKey": "",           // Your Elevenlabs API key (or use ELEVENLABS_API_KEY env var)
+    "voiceId": "21m00Tcm4TlvDq8ikWAM",  // Voice ID (default: Rachel)
+    "volume": 0.3           // TTS volume level (0.0 to 1.0)
+  }
 }
 ```
+
+##### Text-to-Speech (TTS) Feature
+
+**NEW**: Optional Elevenlabs TTS integration for announcing task completions! 
+
+- **Non-blocking**: Announcements happen in the background without delaying output
+- **Smart**: Only speaks short, relevant summaries (following "agent vibes" philosophy)
+- **Optional**: Disabled by default - enable in config when you want it
+
+See [.claude-plugin/TTS_README.md](.claude-plugin/TTS_README.md) for detailed TTS setup and configuration.
+
 
 #### How It Works
 
