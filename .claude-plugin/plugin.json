@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "description": "Adds Fallout terminal sound effects to Claude Code responses",
   "author": {
-    "name": "guruswami-ai"
+    "name": "guruswami-ai",
+    "url": "https://github.com/guruswami-ai"
   },
   "license": "GPL-3.0",
   "hooks": [
