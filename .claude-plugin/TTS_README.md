@@ -94,9 +94,13 @@ Popular voice IDs:
 - Check console for warning messages (search for `[hyper-robco]`)
 
 **Audio not playing?**
-- On Linux, ensure you have `mpg123` or `sox` installed
-- On macOS, `afplay` should work by default
-- In browser contexts, ensure audio autoplay is allowed
+- **Linux**: Install one of these audio players:
+  - `mpg123`: `sudo apt install mpg123` (recommended)
+  - `sox`: `sudo apt install sox libsox-fmt-mp3`
+  - `ffmpeg`: `sudo apt install ffmpeg`
+- **macOS**: `afplay` is built-in and should work by default
+- **Windows**: Windows Media Player COM is used by default
+- **Browser**: Ensure audio autoplay is allowed in browser settings
 
 **Too many/few announcements?**
 - Adjust the cooldown period in `hook.js` (default: 5000ms)

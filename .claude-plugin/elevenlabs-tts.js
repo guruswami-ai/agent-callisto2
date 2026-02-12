@@ -185,15 +185,44 @@ function playAudioBuffer(audioBuffer, volume = 0.2) {
       
       let playCommand;
       if (platform === 'darwin') {
-        // macOS
+        // macOS - afplay supports MP3
         playCommand = `afplay "${tempFile}"`;
       } else if (platform === 'win32') {
-        // Windows - use PowerShell
-        playCommand = `powershell -c "(New-Object Media.SoundPlayer '${tempFile}').PlaySync()"`;
+        // Windows - use PowerShell with Windows Media Player COM object for MP3 support
+        playCommand = `powershell -c "$player = New-Object -ComObject WMPlayer.OCX; $player.URL = '${tempFile}'; $player.controls.play(); Start-Sleep -Seconds 5"`;
       } else {
-        // Linux - try common players
-        // Check which command is available by trying mpg123 first, fall back to play
-        playCommand = `(command -v mpg123 >/dev/null 2>&1 && mpg123 -q "${tempFile}") || (command -v play >/dev/null 2>&1 && play -q "${tempFile}")`;
+        // Linux - check for available players and use the first one found
+        // First, try to detect which player is available
+        const { execSync } = require('child_process');
+        let foundPlayer = false;
+        
+        try {
+          execSync('command -v mpg123 >/dev/null 2>&1');
+          playCommand = `mpg123 -q "${tempFile}"`;
+          foundPlayer = true;
+        } catch (e) {
+          try {
+            execSync('command -v play >/dev/null 2>&1');
+            playCommand = `play -q "${tempFile}"`;
+            foundPlayer = true;
+          } catch (e2) {
+            try {
+              execSync('command -v ffplay >/dev/null 2>&1');
+              playCommand = `ffplay -nodisp -autoexit -v quiet "${tempFile}"`;
+              foundPlayer = true;
+            } catch (e3) {
+              // No suitable player found
+              console.warn('[hyper-robco] TTS audio playback not available: no suitable audio player found (install mpg123, sox, or ffmpeg)');
+              // Clean up temp file
+              try {
+                fs.unlinkSync(tempFile);
+              } catch (e) {
+                // Ignore
+              }
+              return;
+            }
+          }
+        }
       }
       
       exec(playCommand, (error) => {
@@ -206,7 +235,7 @@ function playAudioBuffer(audioBuffer, volume = 0.2) {
           }
         }, 5000);
         
-        if (error) {
+        if (error && !error.message.includes('command not found')) {
           console.warn('[hyper-robco] Audio playback failed:', error.message);
         }
       });
