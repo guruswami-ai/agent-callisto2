@@ -1,11 +1,11 @@
-# hyper-robco Claude Code Plugin
+# vault-tap Claude Code Plugin
 
 Example usage and integration guide.
 
 ## Plugin Structure
 
 ```
-hyper-robco/
+vault-tap/
 ├── .claude-plugin/
 │   ├── plugin.json       # Plugin manifest
 │   ├── config.json       # User configuration

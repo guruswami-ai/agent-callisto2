@@ -1,7 +1,7 @@
 {
-  "name": "hyper-robco",
+  "name": "vault-tap",
   "version": "1.0.0",
-  "description": "Adds Fallout terminal sound effects to your Hyper terminal and Claude Code.",
+  "description": "Adds Fallout terminal sound effects to Claude Code and other terminals.",
   "main": "index.js",
   "scripts": {
     "test": "node test-plugin.js"
@@ -11,16 +11,18 @@
   "dependencies": {},
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/smiley/hyper-robco.git"
+    "url": "git+https://github.com/guruswami-ai/vault-tap.git"
   },
   "keywords": [
-    "hyper",
-    "hyper-plugin",
+    "vault-tec",
+    "robco",
     "claude-code",
     "claude-plugin",
     "fallout",
     "terminal",
     "sound-effects",
-    "audio"
+    "audio",
+    "hyper",
+    "hyper-plugin"
   ]
 }

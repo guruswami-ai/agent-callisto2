@@ -45,7 +45,7 @@ Play terminal sounds as Claude streams its responses:
 
 1. Clone this repository into your Claude Code plugins directory:
    ```bash
-   git clone https://github.com/YOUR_USERNAME/hyper-robco ~/.claude/plugins/hyper-robco
+   git clone https://github.com/YOUR_USERNAME/vault-tap ~/.claude/plugins/vault-tap
    ```
    
    Replace `YOUR_USERNAME` with your GitHub username if you forked the repository.
@@ -80,7 +80,7 @@ All sounds are from Fallout 3/New Vegas terminal interfaces.
 #### Troubleshooting
 
 **No sounds playing?**
-- Make sure the plugin is installed in the correct directory (`~/.claude/plugins/hyper-robco`)
+- Make sure the plugin is installed in the correct directory (`~/.claude/plugins/vault-tap`)
 - Check that `config.json` has `"enabled": true`
 - Restart Claude Code after installation
 - Ensure your browser allows audio playback (some browsers require user interaction first)
@@ -105,4 +105,4 @@ This will check that all required files are present and properly formatted.
 
 **Note**: Currently broken since Hyper migrated from `hterm` to `xterm.js`. Keeping for future reference.
 
-You need to `git clone` this repository into `~/.hyper_plugins/local/hyper-robco` and add `hyper-robco` to `localPlugins` in `.hyper.js`.
+You need to `git clone` this repository into `~/.hyper_plugins/local/vault-tap` and add `vault-tap` to `localPlugins` in `.hyper.js`.

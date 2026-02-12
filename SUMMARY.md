@@ -1,7 +1,7 @@
 # Status Notification Audio System - Summary
 
 ## Project Overview
-Successfully implemented an audio notification system for the Hyper terminal plugin that plays sounds when meaningful status messages appear in terminal output.
+Successfully implemented an audio notification system for the vault-tap plugin that plays sounds when meaningful status messages appear in terminal output.
 
 ## What Was Implemented
 
@@ -90,11 +90,12 @@ node --check index.js
 ```
 
 ## Usage Instructions
-1. Install plugin in `~/.hyper_plugins/local/hyper-robco`
-2. Add `hyper-robco` to `localPlugins` in `.hyper.js`
-3. Open Hyper menu → Plugins → Status notification sounds (toggle)
-4. Run commands that produce status messages (builds, tests, etc.)
-5. Audio notifications will play when completion messages appear
+1. Install plugin in `~/.hyper_plugins/local/vault-tap` (for Hyper terminal - legacy)
+2. Or install in `~/.claude/plugins/vault-tap` (for Claude Code - primary)
+3. Add `vault-tap` to `localPlugins` in `.hyper.js` (for Hyper)
+4. Open Hyper menu → Plugins → Status notification sounds (toggle)
+5. Run commands that produce status messages (builds, tests, etc.)
+6. Audio notifications will play when completion messages appear
 
 ## Security
 - No vulnerabilities detected by CodeQL

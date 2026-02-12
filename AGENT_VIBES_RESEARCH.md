@@ -1,4 +1,4 @@
-# Agent Vibes Research & Application to Hyper-RobCo
+# Agent Vibes Research & Application to vault-tap
 
 ## Agent Vibes TTS System Analysis
 
@@ -52,10 +52,10 @@ Supports multiple TTS backends:
 - Termux (Android)
 - ElevenLabs (premium, cloud)
 
-### How This Applies to Hyper-RobCo
+### How This Applies to vault-tap
 
 #### Current Implementation
-Our hyper-robco plugin:
+Our vault-tap plugin:
 - ✅ Pattern matching (14 regex patterns)
 - ✅ Selective notifications (not all text)
 - ✅ Cooldown timer (3 seconds)
@@ -117,8 +117,8 @@ function shouldNotify(text, verbosityLevel) {
 
 ##### 4. **Configuration File Support**
 Similar to Agent Vibes' `.claude/tts-voice.txt`, we could support:
-- `.hyper-robco-config.json` in user's home directory
-- Project-specific: `./.hyper-robco-config`
+- `.vault-tap-config.json` in user's home directory
+- Project-specific: `./.vault-tap-config`
 
 ```json
 {
@@ -258,4 +258,4 @@ Agent Vibes' verbosity control is a clever solution that:
 - **Empowers users** to customize their experience
 - **Uses simple pattern categorization** for filtering
 
-We can adopt this approach in hyper-robco with minimal changes to the existing codebase, significantly improving the user experience while maintaining the core functionality.
+We can adopt this approach in vault-tap with minimal changes to the existing codebase, significantly improving the user experience while maintaining the core functionality.
