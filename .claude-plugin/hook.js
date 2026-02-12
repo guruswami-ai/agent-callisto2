@@ -81,6 +81,7 @@ const SOUND_FILES = {
 
 let audioPlayers = null;
 let lastSoundIndex = 0;
+let hapticResponseTriggered = false;
 
 /**
  * Get file:// URL for a sound file
@@ -343,6 +344,7 @@ async function onStreamingResponse(context) {
   // Haptic feedback on completion
   if (isComplete) {
     triggerHaptic('complete');
+    hapticResponseTriggered = false;
     return;
   }
 
@@ -350,9 +352,10 @@ async function onStreamingResponse(context) {
     return;
   }
 
-  // Haptic pulse on first response chunk
-  if (chunk.length > 0) {
+  // Haptic pulse on first response chunk only
+  if (!hapticResponseTriggered && chunk.length > 0) {
     triggerHaptic('response');
+    hapticResponseTriggered = true;
   }
 
   const provider = config.audioProvider || 'samples';
