@@ -1,0 +1,6 @@
+{
+  "enabled": true,
+  "volume": 0.2,
+  "playOnStreamingOnly": true,
+  "throttleMs": 10
+}

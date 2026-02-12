@@ -1,0 +1,17 @@
+{
+  "name": "hyper-robco",
+  "version": "1.0.0",
+  "description": "Adds Fallout terminal sound effects to Claude Code responses",
+  "author": {
+    "name": "Smiley Barry",
+    "email": "smiley@users.noreply.github.com"
+  },
+  "license": "GPL-3.0",
+  "hooks": [
+    {
+      "name": "onStreamingResponse",
+      "entry": "hook.js",
+      "description": "Plays keyboard sounds as Claude streams responses"
+    }
+  ]
+}
