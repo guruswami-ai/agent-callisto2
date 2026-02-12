@@ -1,17 +1,16 @@
 {
-  "name": "hyper-robco",
-  "version": "1.0.0",
-  "description": "Adds Fallout terminal sound effects to Claude Code responses",
+  "name": "agent-callisto2",
+  "version": "2.0.0",
+  "description": "Claude CLI plugin with audio and haptic feedback for response status notifications, featuring ElevenLabs TTS (Callisto2 voice) and Logitech MX Master 4 haptic integration.",
   "author": {
-    "name": "Smiley Barry",
-    "email": "smiley@users.noreply.github.com"
+    "name": "guruswami-ai"
   },
   "license": "GPL-3.0",
   "hooks": [
     {
       "name": "onStreamingResponse",
       "entry": "hook.js",
-      "description": "Plays keyboard sounds as Claude streams responses"
+      "description": "Plays audio feedback and triggers haptic events as Claude streams responses"
     }
   ]
 }

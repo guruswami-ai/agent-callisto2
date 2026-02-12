@@ -1,108 +1,167 @@
-# RobCo™ Vault Terminal Adaptation Program™ (VTAP)
-_Still using that out-of-date, silent terminal? Wishing your machine clicked like the rest? Prepare For The Future™ and upgrade today for FREE!*_
+# Agent Callisto2
 
-_*VaultTec vault subscription required._
-
-Add Fallout terminal sound effects to your terminal or AI assistant! This plugin brings the iconic keyboard sounds from [Fallout](https://en.wikipedia.org/wiki/Fallout_(series)) [3](https://en.wikipedia.org/wiki/Fallout_3)/[NV](https://en.wikipedia.org/wiki/Fallout:_New_Vegas) to your 21st century computing experience.
+A Claude CLI plugin that provides audio and haptic feedback for response status — similar in spirit to [Agent Vibes](https://github.com/mberman84/agent-vibes). It features a custom ElevenLabs voice (Callisto2) and haptic feedback through the Logitech MX Master 4 mouse. These hardware-specific requirements are unique to the developer, but the code is designed to be extended with local TTS engines or pre-recorded audio samples.
 
 ## Features
 
-- 🎮 Authentic Fallout terminal keyboard sounds
-- 🤖 **NEW**: Claude Code plugin support - hear keystrokes as Claude streams responses
-- 🖥️ Original Hyper terminal extension support (currently broken due to xterm.js migration)
+- 🎙️ **ElevenLabs TTS** – Custom Callisto2 voice ID for spoken feedback on Claude CLI responses
+- 🖱️ **Haptic Feedback** – Logitech MX Master 4 integration for tactile response status cues
+- 🔊 **Built-in Sample Sounds** – Keystroke audio effects while Claude streams responses
+- 🗣️ **Local TTS Support** – Extensible to Piper, macOS Say, or other local TTS engines
+- 🎵 **Pre-recorded Samples** – Support for pre-recorded Callisto2 voice clips for non-blocking feedback
+- 🎚️ **Verbosity Levels** – Off / Minimal / Normal / Verbose notification control
+- 🔌 **Claude CLI Plugin** – Hooks into Claude Code's streaming response system
 
-## Features
+## Audio Providers
 
-### Keyboard Sound Effects
-Terminal sounds play when typing, including different sounds for regular keys, arrow keys, and Enter.
+Agent Callisto2 supports multiple audio providers, configured via `audioProvider` in `.claude-plugin/config.json`:
 
-### Status Notification Sounds
-Audio notifications play when certain status messages appear in the terminal output, such as:
-- Code review completed
-- Build succeeded/successful
-- Tests passed
-- Deployment successful/complete
-- Ready for review
-- Approval required/requested
-- Merge completed
-- Operation completed
-- And more...
-
-The notification sounds are pseudo-randomly selected from available sound effects and include a cooldown period to avoid spam (3 seconds between notifications).
-
-#### Verbosity Levels (Inspired by Agent Vibes TTS)
-Status notifications support multiple verbosity levels to control how often audio plays:
-- **Off**: No audio notifications
-- **Minimal**: Only critical events (errors, major completions like builds and tests)
-- **Normal**: All status messages (default)
-- **Verbose**: Extended pattern matching for comprehensive notifications
+| Provider       | Description                                              | Blocking? |
+|---------------|----------------------------------------------------------|-----------|
+| `samples`      | Built-in WAV keystroke sounds (default)                 | No        |
+| `elevenlabs`   | ElevenLabs TTS with custom Callisto2 voice              | No        |
+| `local-tts`    | Local TTS engine (Piper, macOS Say, etc.)               | No        |
+| `prerecorded`  | Pre-recorded Callisto2 voice clips                      | No        |
 
 ## Install
 
 ### Claude Code Plugin
 
-Play terminal sounds as Claude streams its responses:
-
 1. Clone this repository into your Claude Code plugins directory:
    ```bash
-   git clone https://github.com/YOUR_USERNAME/hyper-robco ~/.claude/plugins/hyper-robco
+   git clone https://github.com/guruswami-ai/agent-callisto2 ~/.claude/plugins/agent-callisto2
    ```
-   
-   Replace `YOUR_USERNAME` with your GitHub username if you forked the repository.
 
-2. The plugin will be automatically detected by Claude Code on restart
+2. The plugin will be automatically detected by Claude Code on restart.
 
-3. Sounds will play as Claude types responses in real-time!
+3. Audio feedback will play as Claude streams responses in real-time.
 
-#### Configuration
+## Configuration
 
-You can customize the plugin behavior by editing `.claude-plugin/config.json`:
+Edit `.claude-plugin/config.json` to customise behaviour:
 
 ```json
 {
-  "enabled": true,          // Enable/disable sound effects
-  "volume": 0.2,            // Volume level (0.0 to 1.0)
-  "playOnStreamingOnly": true,  // Only play during streaming (not on finished responses)
-  "throttleMs": 10          // Delay between character sounds in milliseconds
+  "enabled": true,
+  "volume": 0.2,
+  "playOnStreamingOnly": true,
+  "throttleMs": 10,
+  "audioProvider": "samples",
+  "elevenlabs": {
+    "apiKey": "",
+    "voiceId": "",
+    "modelId": "eleven_monolingual_v1",
+    "voiceName": "Callisto2"
+  },
+  "haptic": {
+    "enabled": false,
+    "device": "logitech-mx-master-4",
+    "onResponse": true,
+    "onComplete": true,
+    "onError": true
+  },
+  "localTts": {
+    "enabled": false,
+    "engine": "piper",
+    "voice": "default"
+  },
+  "preRecordedSamples": {
+    "enabled": false,
+    "samplesDir": "samples/callisto2"
+  }
 }
 ```
 
-#### How It Works
+### ElevenLabs Setup
 
-The plugin uses Claude Code's hook system to intercept streaming responses. As each character is streamed from Claude, it plays one of the authentic Fallout terminal keyboard sounds, creating a retro computer experience.
+1. Obtain an API key from [ElevenLabs](https://elevenlabs.io).
+2. Create or select a custom voice (the project uses a voice named **Callisto2**).
+3. Set `audioProvider` to `"elevenlabs"` and fill in `elevenlabs.apiKey` and `elevenlabs.voiceId`.
 
-**Sound Effects:**
-- Character keystrokes: 6 different typing sounds that rotate randomly
-- Enter/Newline: 3 different "enter key" sounds for line breaks
+### Haptic Feedback Setup
 
-All sounds are from Fallout 3/New Vegas terminal interfaces.
+Haptic feedback is triggered via an external `logitech-haptic` CLI utility that communicates with the Logitech MX Master 4 mouse. The utility is user-supplied.
 
-#### Troubleshooting
+Events that trigger haptic pulses:
+- **response** – first chunk of a streaming response arrives
+- **complete** – response is fully streamed
+- **error** – an error pattern is detected
 
-**No sounds playing?**
-- Make sure the plugin is installed in the correct directory (`~/.claude/plugins/hyper-robco`)
-- Check that `config.json` has `"enabled": true`
-- Restart Claude Code after installation
-- Ensure your browser allows audio playback (some browsers require user interaction first)
+### Local TTS
 
-**Sounds too loud/quiet?**
-- Adjust the `volume` setting in `.claude-plugin/config.json` (range: 0.0 to 1.0)
+Set `audioProvider` to `"local-tts"` and configure the engine:
 
-**Want to disable temporarily?**
-- Set `"enabled": false` in `.claude-plugin/config.json` or call `setEnabled(false)` from the hook module
+```json
+{
+  "audioProvider": "local-tts",
+  "localTts": {
+    "enabled": true,
+    "engine": "say",
+    "voice": "Samantha"
+  }
+}
+```
 
-#### Testing
+Supported engines: any CLI tool that accepts `--voice` and `--text` flags, plus macOS `say`.
 
-You can verify the plugin is correctly configured by running:
+### Pre-recorded Callisto2 Samples
+
+Place `.wav`, `.mp3`, or `.ogg` files in the `samples/callisto2/` directory and set:
+
+```json
+{
+  "audioProvider": "prerecorded",
+  "preRecordedSamples": {
+    "enabled": true,
+    "samplesDir": "samples/callisto2"
+  }
+}
+```
+
+A random clip is selected for each response chunk, providing non-blocking audio feedback.
+
+## How It Works
+
+The plugin uses Claude Code's hook system to intercept streaming responses. As each chunk is streamed from Claude, the configured audio provider plays feedback and (optionally) haptic events are triggered on the Logitech MX Master 4.
+
+### Status Notification Sounds
+
+Audio notifications play when certain status messages appear in the terminal output, such as:
+- Code review completed
+- Build succeeded / successful
+- Tests passed
+- Deployment successful / complete
+- Ready for review
+- Approval required / requested
+- Merge completed
+- Operation completed
+
+#### Verbosity Levels (Inspired by Agent Vibes TTS)
+- **Off**: No audio notifications
+- **Minimal**: Only critical events (errors, major completions like builds and tests)
+- **Normal**: All status messages (default)
+- **Verbose**: Extended pattern matching for comprehensive notifications
+
+## Roadmap
+
+- [ ] Extensive library of pre-recorded Callisto2 voice clips for fully non-blocking feedback
+- [ ] Local TTS integration with Piper for offline voice synthesis
+- [ ] Configurable haptic patterns per event type
+- [ ] Web UI for configuration management
+- [ ] Per-category volume control
+
+## Testing
 
 ```bash
 npm test
 ```
 
-This will check that all required files are present and properly formatted.
+This checks that all required files are present, configuration is valid, and exports are correct.
 
-### Hyper Terminal Extension (Legacy)
+## Legacy – Hyper Terminal Extension
 
-**Note**: Currently broken since Hyper migrated from `hterm` to `xterm.js`. Keeping for future reference.
+The original Hyper terminal extension code is retained in `index.js` for reference but is no longer actively maintained. See the `.claude-plugin/` directory for the current Claude CLI plugin implementation.
 
-You need to `git clone` this repository into `~/.hyper_plugins/local/hyper-robco` and add `hyper-robco` to `localPlugins` in `.hyper.js`.
+## License
+
+GPL-3.0

@@ -1,110 +1,49 @@
-# Status Notification Audio System - Summary
+# Agent Callisto2 – Summary
 
 ## Project Overview
-Successfully implemented an audio notification system for the Hyper terminal plugin that plays sounds when meaningful status messages appear in terminal output.
+Agent Callisto2 is a Claude CLI plugin that provides audio and haptic feedback for Claude Code responses. It is inspired by Agent Vibes and extends the concept with a custom ElevenLabs voice (Callisto2), haptic integration with the Logitech MX Master 4 mouse, and extensible audio provider support.
 
 ## What Was Implemented
 
 ### Core Features
-1. **Pattern Matching System**
+1. **Multiple Audio Providers**
+   - Built-in WAV sample playback (default)
+   - ElevenLabs TTS with custom Callisto2 voice ID
+   - Local TTS engine support (Piper, macOS Say)
+   - Pre-recorded Callisto2 voice clip playback
+
+2. **Haptic Feedback**
+   - Logitech MX Master 4 integration via external `logitech-haptic` utility
+   - Configurable events: response, complete, error
+
+3. **Status Pattern Matching**
    - 14 regex patterns to detect completion/status messages
    - Case-insensitive matching
-   - Covers common CI/CD and development workflow messages
+   - Verbosity levels: off, minimal, normal, verbose
 
-2. **Audio Notification System**
-   - Pseudo-random sound selection from 4 audio files
-   - Prevents consecutive repeats
-   - Volume set at 0.2 (20%) to match existing sounds
-
-3. **Anti-Spam Protection**
+4. **Anti-Spam Protection**
    - 3-second cooldown between notifications
    - 500-character rolling buffer for output monitoring
-   - Settings-based enable/disable controls
 
-4. **User Interface**
-   - Menu option: "Status notification sounds" in Plugins menu
-   - Independent from keyboard sound effects
-   - Persists across terminal sessions
+5. **Extensible Architecture**
+   - Pluggable audio provider system
+   - Configuration-driven behaviour
+   - Non-blocking design for all audio and haptic operations
 
-5. **Resource Management**
-   - Proper cleanup on component unmount
-   - Restores original terminal write method
-   - Prevents memory leaks
+### Files
+- `package.json` – Renamed to agent-callisto2
+- `.claude-plugin/plugin.json` – Updated manifest
+- `.claude-plugin/config.json` – Extended configuration
+- `.claude-plugin/hook.js` – Multi-provider hook implementation
+- `.claude-plugin/USAGE.md` – Updated usage guide
+- `README.md` – Complete rewrite for agent-callisto2
+- `IMPLEMENTATION_NOTES.md` – Updated documentation
+- `AGENT_VIBES_RESEARCH.md` – Research reference
+- `test-plugin.js` – Updated tests
+- `index.js` – Legacy Hyper terminal plugin (retained)
 
-### Technical Implementation
-- **Monitoring Approach**: Intercepts `term.write()` method to capture terminal output
-- **Buffer Management**: Maintains last 500 characters of output
-- **Settings Integration**: Uses `global.settings.notificationsEnabled`
-- **React Lifecycle**: Implements `componentWillUnmount` for cleanup
-
-## Patterns Detected
-The system triggers audio notifications for these patterns:
-- Code review completed
-- Review completed
-- Task completed
-- Build succeeded/successful
-- Test(s) passed
-- Deployment successful/complete
-- Ready for review
-- Approval required/requested
-- Waiting for approval
-- Merge completed
-- Successfully merged
-- Operation completed
-
-## Testing
-- ✅ 15 pattern matching tests (all passing)
-- ✅ JavaScript syntax validation
-- ✅ Integration tests
-- ✅ CodeQL security scan (0 vulnerabilities)
-
-## Documentation
-Created/Updated:
-- README.md - Added Features section with configuration instructions
-- IMPLEMENTATION_NOTES.md - Comprehensive technical documentation
-- Code comments explaining design decisions
-
-## Code Quality
-All code review feedback addressed:
-- Removed overly broad `/done/i` pattern
-- Extracted magic numbers to named constants
-- Fixed terminal monitoring to use write() instead of onData()
-- Added proper resource cleanup
-- Updated documentation to match implementation
-
-## Files Modified
-1. `index.js` - Main implementation (114 lines added/changed)
-2. `README.md` - User documentation
-3. `IMPLEMENTATION_NOTES.md` - Technical documentation (new file)
-
-## Testing Commands
-```bash
-# Pattern matching tests
-node /tmp/test_notifications.js
-
-# Integration tests
-node -e "/* test code */"
-
-# Syntax validation
-node --check index.js
-```
-
-## Usage Instructions
-1. Install plugin in `~/.hyper_plugins/local/hyper-robco`
-2. Add `hyper-robco` to `localPlugins` in `.hyper.js`
-3. Open Hyper menu → Plugins → Status notification sounds (toggle)
-4. Run commands that produce status messages (builds, tests, etc.)
-5. Audio notifications will play when completion messages appear
-
-## Security
-- No vulnerabilities detected by CodeQL
-- No sensitive data exposure
-- No external network requests
-- Proper input validation and buffer management
-
-## Future Enhancement Opportunities
-- Configurable patterns via settings
-- Different sound sets for different event types
-- Adjustable cooldown period
-- Per-pattern volume control
-- User-uploadable custom sounds
+## Roadmap
+- Extensive library of pre-recorded Callisto2 voice clips
+- Local TTS integration with Piper for offline voice synthesis
+- Configurable haptic patterns per event type
+- Web UI for configuration management

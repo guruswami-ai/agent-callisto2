@@ -2,5 +2,28 @@
   "enabled": true,
   "volume": 0.2,
   "playOnStreamingOnly": true,
-  "throttleMs": 10
+  "throttleMs": 10,
+  "audioProvider": "samples",
+  "elevenlabs": {
+    "apiKey": "",
+    "voiceId": "",
+    "modelId": "eleven_monolingual_v1",
+    "voiceName": "Callisto2"
+  },
+  "haptic": {
+    "enabled": false,
+    "device": "logitech-mx-master-4",
+    "onResponse": true,
+    "onComplete": true,
+    "onError": true
+  },
+  "localTts": {
+    "enabled": false,
+    "engine": "piper",
+    "voice": "default"
+  },
+  "preRecordedSamples": {
+    "enabled": false,
+    "samplesDir": "samples/callisto2"
+  }
 }

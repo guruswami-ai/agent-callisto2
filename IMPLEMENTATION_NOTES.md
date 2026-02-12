@@ -1,89 +1,65 @@
-# Status Notification Audio System - Implementation Notes
+# Agent Callisto2 – Implementation Notes
 
 ## Overview
-This implementation adds audio notifications to the Hyper terminal plugin for status updates and completion messages. The system is designed to provide unobtrusive audio feedback for important terminal events without overwhelming the user.
+Agent Callisto2 is a Claude CLI plugin (inspired by Agent Vibes) that provides audio and haptic feedback for Claude Code response status. It supports multiple audio providers—including a custom ElevenLabs voice (Callisto2) and pre-recorded samples—and haptic integration with the Logitech MX Master 4 mouse.
+
+## Architecture
+
+### Audio Providers
+The plugin supports four audio providers, configured via `audioProvider` in `config.json`:
+
+1. **samples** (default) – Plays built-in WAV keystroke sound effects per character.
+2. **elevenlabs** – Sends text chunks to the ElevenLabs TTS API using a custom Callisto2 voice ID. Non-blocking (fire-and-forget HTTPS requests).
+3. **local-tts** – Shells out to a local TTS engine (e.g. Piper, macOS `say`). Non-blocking via `execFile`.
+4. **prerecorded** – Plays random clips from a directory of pre-recorded Callisto2 voice samples. Non-blocking.
+
+### Haptic Feedback
+The plugin calls an external `logitech-haptic` CLI utility to trigger vibration on the Logitech MX Master 4 mouse. Events:
+- `response` – first chunk of a streaming response
+- `complete` – response finished streaming
+- `error` – error pattern detected
+
+Haptic feedback is always non-blocking (fire-and-forget `execFile`).
 
 ## Research Summary
 
-### Claude Code Plugins / Functions
-Claude's AI assistant can use various "tools" or "functions" that provide additional capabilities beyond text generation. In the context of this project, the goal was to implement a similar concept for terminal notifications - providing audio feedback at appropriate moments.
+### Agent Vibes Inspiration
+Agent Vibes is a TTS extension for Claude Code with sophisticated verbosity control and pattern matching. Key concepts adopted:
+- Selective audio notifications with configurable verbosity
+- Pattern categories (critical, completion, approval)
+- Non-blocking audio playback
+- Extensible provider system
 
 ### Design Goals
-1. **Selective Notifications**: Play sounds only for meaningful events (completions, status updates, requests for approval)
-2. **Avoid Spam**: Don't play sounds for every line of output
-3. **Pseudo-Random Selection**: Vary the audio to make notifications less monotonous
-4. **User Control**: Allow users to enable/disable the feature
+1. **Selective Notifications**: Play sounds only for meaningful events
+2. **Avoid Spam**: Cooldown timers and verbosity levels
+3. **Non-blocking**: All audio and haptic operations are fire-and-forget
+4. **Extensible**: New audio providers can be added easily
+5. **User Control**: Configurable via `config.json`
 
-## Implementation Details
+## Verbosity Levels
+Status notifications support multiple verbosity levels:
+- **Off**: No audio notifications
+- **Minimal**: Only critical events (errors, major completions)
+- **Normal**: All standard status messages (default)
+- **Verbose**: Extended pattern matching
 
-### Verbosity Control (Inspired by Agent Vibes TTS)
-The system now supports multiple verbosity levels for fine-grained control over notifications:
+## Pattern Matching
+The legacy Hyper terminal plugin (`index.js`) uses regex patterns to detect status messages:
+- Code review / task completed
+- Build succeeded / successful
+- Tests passed
+- Deployment successful / complete
+- Approval required / requested
+- Merge completed
 
-1. **Off**: No audio notifications
-2. **Minimal**: Only critical events (errors, fatal issues, major completions like builds and tests)
-3. **Normal**: All standard status messages (default behavior)
-4. **Verbose**: Extended pattern matching for comprehensive coverage
-
-This approach is inspired by Agent Vibes TTS, which pioneered selective audio notifications with configurable verbosity in Claude Code environments.
-
-### Pattern Matching
-The system uses regular expressions to detect status messages in terminal output:
-
-- **Code Review**: `code review completed`, `review completed`
-- **Build Status**: `build succeeded`, `build successful`
-- **Test Results**: `test passed`, `tests passed`
-- **Deployment**: `deployment successful`, `deployment complete`
-- **Approval Requests**: `approval required`, `waiting for approval`, `ready for review`
-- **Merge Operations**: `merge completed`, `successfully merged`
-- **General Completion**: `operation completed`
-
-All patterns are case-insensitive to catch variations in output formatting.
-
-### Anti-Spam Measures
-1. **Cooldown Timer**: 3-second delay between notifications prevents rapid-fire sounds
-2. **Buffer Management**: Only keeps the last 500 characters of terminal output to avoid excessive memory usage
-3. **Settings Check**: Respects both global sound settings and notification-specific settings
-
-### Audio Selection
-Notification sounds are pseudo-randomly selected from a pool of available sound effects:
-- `ui_hacking_charenter_01.wav`
-- `ui_hacking_charenter_02.wav`
-- `ui_hacking_charenter_03.wav`
-- `poweron.mp3`
-
-The `getRandom()` function ensures consecutive notifications don't use the same sound.
-
-### Integration Points
-1. **Terminal Output Stream**: Intercepts the `term.write()` method to monitor terminal output
-2. **Settings Menu**: Adds menu option under Plugins to toggle notifications
-3. **Global Settings**: Maintains state via `global.settings.notificationsEnabled`
-4. **Proper Cleanup**: Restores original write method on component unmount to prevent memory leaks
-
-## Usage
-
-### For Users
-1. Install the plugin as documented in README.md
-2. Access Hyper menu: **Plugins > Status notification sounds**
-3. Toggle to enable/disable audio notifications
-4. Run commands that produce status messages to hear notifications
-
-### For Developers
-The system can be extended by:
-1. Adding more patterns to `STATUS_PATTERNS` array
-2. Adding custom sound files to the `sounds/` directory
-3. Adjusting `NOTIFICATION_COOLDOWN` for different timing
-4. Modifying buffer size (currently 500 chars) for different detection ranges
-
-## Testing
-Pattern matching is tested with a variety of messages to ensure:
-- True positives: Status messages trigger notifications
-- True negatives: Regular output doesn't trigger notifications
-- Case insensitivity: Patterns match regardless of case
+## Anti-Spam Measures
+1. **Cooldown Timer**: 3-second delay between notifications
+2. **Buffer Management**: 500-character rolling buffer
+3. **Settings Check**: Respects enable/disable controls
 
 ## Future Enhancements
-Possible improvements:
-1. Configurable patterns via settings
-2. Different sound sets for different event types
-3. Adjustable cooldown period
-4. Volume control for notifications separately from typing sounds
-5. Custom sound file support
+- Extensive library of pre-recorded Callisto2 voice clips for fully non-blocking feedback
+- Local TTS integration with Piper for offline voice synthesis
+- Configurable haptic patterns per event type
+- Per-category volume control

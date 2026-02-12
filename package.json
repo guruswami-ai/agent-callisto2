@@ -1,26 +1,28 @@
 {
-  "name": "hyper-robco",
-  "version": "1.0.0",
-  "description": "Adds Fallout terminal sound effects to your Hyper terminal and Claude Code.",
+  "name": "agent-callisto2",
+  "version": "2.0.0",
+  "description": "Claude CLI plugin with audio and haptic feedback featuring ElevenLabs TTS voice (Callisto2) and Logitech MX Master 4 haptic integration.",
   "main": "index.js",
   "scripts": {
     "test": "node test-plugin.js"
   },
-  "author": "Smiley Barry <smiley@users.noreply.github.com>",
+  "author": "guruswami-ai",
   "license": "GPL-3.0",
   "dependencies": {},
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/smiley/hyper-robco.git"
+    "url": "git+https://github.com/guruswami-ai/agent-callisto2.git"
   },
   "keywords": [
-    "hyper",
-    "hyper-plugin",
     "claude-code",
     "claude-plugin",
-    "fallout",
-    "terminal",
-    "sound-effects",
-    "audio"
+    "claude-cli",
+    "agent-vibes",
+    "tts",
+    "elevenlabs",
+    "haptic-feedback",
+    "audio",
+    "callisto2",
+    "logitech-mx-master"
   ]
 }
