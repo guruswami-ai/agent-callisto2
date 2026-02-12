@@ -11,6 +11,32 @@ Add Fallout terminal sound effects to your terminal or AI assistant! This plugin
 - 🤖 **NEW**: Claude Code plugin support - hear keystrokes as Claude streams responses
 - 🖥️ Original Hyper terminal extension support (currently broken due to xterm.js migration)
 
+## Features
+
+### Keyboard Sound Effects
+Terminal sounds play when typing, including different sounds for regular keys, arrow keys, and Enter.
+
+### Status Notification Sounds
+Audio notifications play when certain status messages appear in the terminal output, such as:
+- Code review completed
+- Build succeeded/successful
+- Tests passed
+- Deployment successful/complete
+- Ready for review
+- Approval required/requested
+- Merge completed
+- Operation completed
+- And more...
+
+The notification sounds are pseudo-randomly selected from available sound effects and include a cooldown period to avoid spam (3 seconds between notifications).
+
+#### Verbosity Levels (Inspired by Agent Vibes TTS)
+Status notifications support multiple verbosity levels to control how often audio plays:
+- **Off**: No audio notifications
+- **Minimal**: Only critical events (errors, major completions like builds and tests)
+- **Normal**: All status messages (default)
+- **Verbose**: Extended pattern matching for comprehensive notifications
+
 ## Install
 
 ### Claude Code Plugin

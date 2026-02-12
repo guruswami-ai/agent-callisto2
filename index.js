@@ -19,7 +19,9 @@ if (process.type === "renderer") {
     }
 } else {
     global.settings = {
-        enabled: true
+        enabled: true,
+        notificationsEnabled: true,
+        notificationVerbosity: 'normal' // 'off', 'minimal', 'normal', 'verbose'
     };
     
     function makePlayer(sound_name) {
@@ -50,7 +52,13 @@ const SOUNDS = {
     'EVENTS': {
         'OPEN': makePlayer('poweron.mp3'),
         'CLOSE': makePlayer('poweroff.mp3'),
-    }
+    },
+    'NOTIFICATIONS': [
+        makePlayer('ui_hacking_charenter_01.wav'),
+        makePlayer('ui_hacking_charenter_02.wav'),
+        makePlayer('ui_hacking_charenter_03.wav'),
+        makePlayer('poweron.mp3'),
+    ]
 }
 
 function getRandom(list) {
@@ -65,12 +73,111 @@ function getRandom(list) {
     return list[newRand];
 }
 
+// Status notification patterns
+// Based on research of common CI/CD and development workflow status messages
+// These patterns match completion messages, success notifications, and approval requests
+// Pattern matching is case-insensitive to catch variations in output
+const STATUS_PATTERNS = [
+    /code review completed/i,
+    /review completed/i,
+    /task completed/i,
+    /build succeeded/i,
+    /build successful/i,
+    /tests? passed/i,
+    /deployment successful/i,
+    /deployment complete/i,
+    /ready for review/i,
+    /approval (required|requested)/i,
+    /waiting for approval/i,
+    /merge completed/i,
+    /successfully merged/i,
+    /operation completed/i
+];
+
+// Pattern categories for verbosity control (inspired by Agent Vibes TTS)
+const PATTERN_CATEGORIES = {
+    CRITICAL: [
+        /error/i,
+        /failed/i,
+        /failure/i,
+        /fatal/i
+    ],
+    COMPLETION: [
+        /completed/i,
+        /succeeded/i,
+        /successful/i,
+        /tests? passed/i,
+        /build succeeded/i,
+        /deployment complete/i
+    ],
+    APPROVAL: [
+        /approval (required|requested)/i,
+        /ready for review/i,
+        /waiting for approval/i
+    ]
+};
+
+// Track recent notifications to avoid spam
+let lastNotificationTime = 0;
+const NOTIFICATION_COOLDOWN = 3000; // 3 seconds between notifications
+const NOTIFICATION_BUFFER_SIZE = 500; // Keep last 500 chars of output
+
+function shouldPlayNotification(text) {
+    if (!global.settings.notificationsEnabled) {
+        return false;
+    }
+    
+    const verbosity = global.settings.notificationVerbosity || 'normal';
+    
+    // Off means no notifications
+    if (verbosity === 'off') {
+        return false;
+    }
+    
+    const now = Date.now();
+    if (now - lastNotificationTime < NOTIFICATION_COOLDOWN) {
+        return false;
+    }
+    
+    let shouldTrigger = false;
+    
+    if (verbosity === 'minimal') {
+        // Minimal: Only critical errors and major completions (inspired by Agent Vibes)
+        // Reuse pattern categories to avoid duplication
+        const minimalPatterns = [
+            ...PATTERN_CATEGORIES.CRITICAL,
+            /successfully completed/i,
+            ...PATTERN_CATEGORIES.COMPLETION.filter(p => 
+                p.source.includes('build') || 
+                p.source.includes('test') || 
+                p.source.includes('deployment')
+            )
+        ];
+        shouldTrigger = minimalPatterns.some(pattern => pattern.test(text));
+    } else if (verbosity === 'verbose') {
+        // Verbose: All status patterns (no need to merge categories as STATUS_PATTERNS is comprehensive)
+        shouldTrigger = STATUS_PATTERNS.some(pattern => pattern.test(text)) ||
+                       PATTERN_CATEGORIES.CRITICAL.some(pattern => pattern.test(text));
+    } else {
+        // Normal: Current behavior with standard status patterns
+        shouldTrigger = STATUS_PATTERNS.some(pattern => pattern.test(text));
+    }
+    
+    if (shouldTrigger) {
+        lastNotificationTime = now;
+    }
+    
+    return shouldTrigger;
+}
+
 exports.decorateTerm = (Term, { React, notify }) => {
     return class extends React.Component {
 
     constructor (props, context) {
       super(props, context);
       this._onTerminal = this._onTerminal.bind(this);
+      this._originalWrite = null;
+      this._term = null;
     }
 
     _onTerminal (term) {
@@ -119,6 +226,55 @@ exports.decorateTerm = (Term, { React, notify }) => {
             term.keyboard.handlers_ = [handler].concat(term.keyboard.handlers_);
         }
         term.installKeyboard();
+        
+        // Hook into terminal output to detect status notifications
+        // This implementation monitors terminal output for status messages
+        // and plays audio notifications when completion/status patterns are detected.
+        // The system uses a rolling buffer to capture recent output and avoids
+        // spam with a cooldown timer between notifications.
+        
+        // Store original write method
+        const originalWrite = term.write.bind(term);
+        let outputBuffer = '';
+        
+        // Intercept terminal write to monitor output
+        term.write = function(data) {
+            // Call original write first
+            const result = originalWrite(data);
+            
+            if (!global.settings.enabled || !global.settings.notificationsEnabled) {
+                return result;
+            }
+            
+            // Append data to buffer (convert to string if needed)
+            const dataStr = typeof data === 'string' ? data : String(data);
+            outputBuffer += dataStr;
+            
+            // Keep buffer size manageable
+            if (outputBuffer.length > NOTIFICATION_BUFFER_SIZE) {
+                outputBuffer = outputBuffer.slice(-NOTIFICATION_BUFFER_SIZE);
+            }
+            
+            // Check for notification patterns
+            if (shouldPlayNotification(outputBuffer)) {
+                getRandom(SOUNDS.NOTIFICATIONS).play();
+            }
+            
+            return result;
+        };
+        
+        // Store reference for cleanup
+        this._originalWrite = originalWrite;
+        this._term = term;
+    }
+
+    componentWillUnmount() {
+        // Restore original write method when component unmounts
+        if (this._term && this._originalWrite) {
+            this._term.write = this._originalWrite;
+            this._originalWrite = null;
+            this._term = null;
+        }
     }
 
     render () {
@@ -158,6 +314,47 @@ exports.decorateMenu = menu =>
             global.settings.enabled = !global.settings.enabled;
             clickedItem.checked = global.settings.enabled;
           },
+        },
+        {
+          label: 'Status notification sounds',
+          submenu: [
+            {
+              label: 'Off',
+              type: 'radio',
+              checked: global.settings.notificationVerbosity === 'off',
+              click: () => {
+                global.settings.notificationsEnabled = false;
+                global.settings.notificationVerbosity = 'off';
+              }
+            },
+            {
+              label: 'Minimal (Critical only)',
+              type: 'radio',
+              checked: global.settings.notificationVerbosity === 'minimal',
+              click: () => {
+                global.settings.notificationsEnabled = true;
+                global.settings.notificationVerbosity = 'minimal';
+              }
+            },
+            {
+              label: 'Normal',
+              type: 'radio',
+              checked: global.settings.notificationVerbosity === 'normal',
+              click: () => {
+                global.settings.notificationsEnabled = true;
+                global.settings.notificationVerbosity = 'normal';
+              }
+            },
+            {
+              label: 'Verbose',
+              type: 'radio',
+              checked: global.settings.notificationVerbosity === 'verbose',
+              click: () => {
+                global.settings.notificationsEnabled = true;
+                global.settings.notificationVerbosity = 'verbose';
+              }
+            }
+          ]
         }
       );
       return newItem;
