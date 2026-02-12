@@ -143,7 +143,7 @@ function playEnterSound() {
  * @param {string} context.chunk - The text chunk being streamed
  * @param {boolean} context.isComplete - Whether this is the final chunk
  */
-async function onStreamingResponse(context) {
+function onStreamingResponse(context) {
   // Lazy initialization
   if (!audioPlayers) {
     audioPlayers = initializePlayers();
@@ -155,22 +155,25 @@ async function onStreamingResponse(context) {
     return;
   }
   
-  // Play sounds for each character in the chunk
+  // Play sounds for each character in the chunk asynchronously
+  // without blocking the streaming response
+  let delay = 0;
   for (let i = 0; i < chunk.length; i++) {
     const char = chunk[i];
     
-    // Play enter sound for newlines
-    if (char === '\n') {
-      playEnterSound();
-    } else if (/\S/.test(char)) {
-      // Play character sound for non-whitespace characters
-      playCharSound();
-    }
+    // Schedule sound playback without blocking
+    setTimeout(() => {
+      // Play enter sound for newlines
+      if (char === '\n') {
+        playEnterSound();
+      } else if (/\S/.test(char)) {
+        // Play character sound for non-whitespace characters
+        playCharSound();
+      }
+    }, delay);
     
-    // Add a small delay between sounds to avoid overwhelming
-    if (i < chunk.length - 1) {
-      await new Promise(resolve => setTimeout(resolve, config.throttleMs));
-    }
+    // Increment delay for next character
+    delay += config.throttleMs;
   }
 }
 
