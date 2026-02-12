@@ -7,8 +7,8 @@ Add Fallout terminal sound effects to your terminal or AI assistant! This plugin
 - 🎮 Authentic Fallout terminal keyboard sounds
 - 🤖 **NEW**: Claude Code plugin support - hear keystrokes as Claude streams responses
 - 🖥️ Original Hyper terminal extension support (currently broken due to xterm.js migration)
-
-## Features
+- 🔔 **NEW**: Intelligent status notification sounds with verbosity control
+- 🎛️ Configurable sound volume and behavior
 
 ### Keyboard Sound Effects
 Terminal sounds play when typing, including different sounds for regular keys, arrow keys, and Enter.
