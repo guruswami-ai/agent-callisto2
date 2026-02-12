@@ -179,36 +179,44 @@ function playAudioBuffer(audioBuffer, volume = 0.2) {
       fs.writeFileSync(tempFile, audioBuffer);
       
       // Try to play using available system commands based on platform
-      const { exec } = require('child_process');
+      const { execFile, execSync } = require('child_process');
       const os = require('os');
       const platform = os.platform();
       
-      let playCommand;
+      let command;
+      let args;
+      
       if (platform === 'darwin') {
         // macOS - afplay supports MP3
-        playCommand = `afplay "${tempFile}"`;
+        command = 'afplay';
+        args = [tempFile];
       } else if (platform === 'win32') {
         // Windows - use PowerShell with Windows Media Player COM object for MP3 support
-        playCommand = `powershell -c "$player = New-Object -ComObject WMPlayer.OCX; $player.URL = '${tempFile}'; $player.controls.play(); Start-Sleep -Seconds 5"`;
+        command = 'powershell';
+        args = [
+          '-Command',
+          `$player = New-Object -ComObject WMPlayer.OCX; $player.URL = '${tempFile.replace(/'/g, "''")}'; $player.controls.play(); Start-Sleep -Seconds 5`
+        ];
       } else {
         // Linux - check for available players and use the first one found
-        // First, try to detect which player is available
-        const { execSync } = require('child_process');
         let foundPlayer = false;
         
         try {
           execSync('command -v mpg123 >/dev/null 2>&1');
-          playCommand = `mpg123 -q "${tempFile}"`;
+          command = 'mpg123';
+          args = ['-q', tempFile];
           foundPlayer = true;
         } catch (e) {
           try {
             execSync('command -v play >/dev/null 2>&1');
-            playCommand = `play -q "${tempFile}"`;
+            command = 'play';
+            args = ['-q', tempFile];
             foundPlayer = true;
           } catch (e2) {
             try {
               execSync('command -v ffplay >/dev/null 2>&1');
-              playCommand = `ffplay -nodisp -autoexit -v quiet "${tempFile}"`;
+              command = 'ffplay';
+              args = ['-nodisp', '-autoexit', '-v', 'quiet', tempFile];
               foundPlayer = true;
             } catch (e3) {
               // No suitable player found
@@ -225,7 +233,8 @@ function playAudioBuffer(audioBuffer, volume = 0.2) {
         }
       }
       
-      exec(playCommand, (error) => {
+      // Use execFile for safer execution (no shell injection)
+      execFile(command, args, (error) => {
         // Clean up temp file after playback attempt
         setTimeout(() => {
           try {
