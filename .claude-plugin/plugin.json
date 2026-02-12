@@ -1,10 +1,9 @@
 {
-  "name": "hyper-robco",
+  "name": "agent-callisto2",
   "version": "1.0.0",
   "description": "Adds Fallout terminal sound effects to Claude Code responses",
   "author": {
-    "name": "Smiley Barry",
-    "email": "smiley@users.noreply.github.com"
+    "name": "guruswami-ai"
   },
   "license": "GPL-3.0",
   "hooks": [
