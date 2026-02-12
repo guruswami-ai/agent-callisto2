@@ -35,10 +35,10 @@ The plugin provides keyboard sounds during typing and status notification sounds
 3. **sounds/** - WAV audio files (DO NOT MODIFY)
 
 ### Key Design Patterns
-- **Sound Management**: Pre-loaded audio players in SOUNDS object
+- **Sound Management**: Pre-loaded audio players in `SOUNDS` object
 - **Random Selection**: Prevents consecutive repeats, uses pseudo-random selection
 - **Anti-spam**: Cooldown periods prevent notification spam (3 seconds for status notifications)
-- **Settings Persistence**: Uses Electron's global.settings for state management
+- **Settings Persistence**: Uses Electron's `global.settings` for state management
 
 ## Code Style and Conventions
 
@@ -166,7 +166,7 @@ The plugin supports multiple verbosity levels for status notifications:
 When adding new patterns, consider which verbosity level they belong to.
 
 ### Platform Differences
-- **Renderer Process** (Hyper): Uses electron.remote, actual Audio objects
+- **Renderer Process** (Hyper): Uses `electron.remote`, actual Audio objects
 - **Main Process** (Node.js): Mock players for testing
 - **Browser** (Claude Code): Pure Web Audio API, no Electron dependencies
 
@@ -189,7 +189,7 @@ Always test code in the target environment.
 
 ### Debugging Audio Issues
 1. Check browser/Electron console for errors
-2. Verify settings.enabled is true
+2. Verify `settings.enabled` is true
 3. Test audio file paths are correct
 4. Ensure audio files are not corrupted
 5. Check volume levels and OS audio settings
