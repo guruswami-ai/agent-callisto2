@@ -178,27 +178,38 @@ function playAudioBuffer(audioBuffer, volume = 0.2) {
     try {
       fs.writeFileSync(tempFile, audioBuffer);
       
-      // Try to play using available system commands
+      // Try to play using available system commands based on platform
       const { exec } = require('child_process');
-      const playCommands = [
-        `afplay "${tempFile}"`, // macOS
-        `mpg123 -q "${tempFile}"`, // Linux with mpg123
-        `play "${tempFile}"`, // Linux with sox
-      ];
+      const os = require('os');
+      const platform = os.platform();
       
-      for (const cmd of playCommands) {
-        exec(cmd, (error) => {
-          // Clean up temp file after playback attempt
-          setTimeout(() => {
-            try {
-              fs.unlinkSync(tempFile);
-            } catch (e) {
-              // Ignore cleanup errors
-            }
-          }, 5000);
-        });
-        break; // Only try first available command
+      let playCommand;
+      if (platform === 'darwin') {
+        // macOS
+        playCommand = `afplay "${tempFile}"`;
+      } else if (platform === 'win32') {
+        // Windows - use PowerShell
+        playCommand = `powershell -c "(New-Object Media.SoundPlayer '${tempFile}').PlaySync()"`;
+      } else {
+        // Linux - try common players
+        // Check which command is available by trying mpg123 first, fall back to play
+        playCommand = `(command -v mpg123 >/dev/null 2>&1 && mpg123 -q "${tempFile}") || (command -v play >/dev/null 2>&1 && play -q "${tempFile}")`;
       }
+      
+      exec(playCommand, (error) => {
+        // Clean up temp file after playback attempt
+        setTimeout(() => {
+          try {
+            fs.unlinkSync(tempFile);
+          } catch (e) {
+            // Ignore cleanup errors
+          }
+        }, 5000);
+        
+        if (error) {
+          console.warn('[hyper-robco] Audio playback failed:', error.message);
+        }
+      });
     } catch (error) {
       console.warn('[hyper-robco] Failed to play TTS audio:', error.message);
     }
