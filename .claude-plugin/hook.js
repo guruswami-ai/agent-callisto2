@@ -162,15 +162,18 @@ function onStreamingResponse(context) {
     const char = chunk[i];
     
     // Schedule sound playback without blocking
-    setTimeout(() => {
-      // Play enter sound for newlines
-      if (char === '\n') {
-        playEnterSound();
-      } else if (/\S/.test(char)) {
-        // Play character sound for non-whitespace characters
-        playCharSound();
-      }
-    }, delay);
+    // Use IIFE to capture char value correctly for each iteration
+    ((currentChar) => {
+      setTimeout(() => {
+        // Play enter sound for newlines
+        if (currentChar === '\n') {
+          playEnterSound();
+        } else if (/\S/.test(currentChar)) {
+          // Play character sound for non-whitespace characters
+          playCharSound();
+        }
+      }, delay);
+    })(char);
     
     // Increment delay for next character
     delay += config.throttleMs;
