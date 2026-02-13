@@ -1,17 +1,17 @@
 {
-  "name": "hyper-robco",
+  "name": "agent-callisto2",
   "version": "1.0.0",
-  "description": "Adds Fallout terminal sound effects to your Hyper terminal and Claude Code.",
+  "description": "Adds Fallout terminal sound effects to your Hyper terminal and Claude Code - with intelligent status notifications.",
   "main": "index.js",
   "scripts": {
     "test": "node test-plugin.js && node test-tts.js"
   },
-  "author": "Smiley Barry <smiley@users.noreply.github.com>",
+  "author": "guruswami-ai",
   "license": "GPL-3.0",
   "dependencies": {},
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/smiley/hyper-robco.git"
+    "url": "git+https://github.com/guruswami-ai/agent-callisto2.git"
   },
   "keywords": [
     "hyper",
