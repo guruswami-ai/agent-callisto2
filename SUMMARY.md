@@ -1,4 +1,4 @@
-# Status Notification Audio System - Summary
+# Agent Callisto2 – Summary
 
 ## Project Overview
 Successfully implemented an audio notification system for the Agent Callisto 2 terminal plugin that plays sounds when meaningful status messages appear in terminal output.
@@ -6,17 +6,22 @@ Successfully implemented an audio notification system for the Agent Callisto 2 t
 ## What Was Implemented
 
 ### Core Features
-1. **Pattern Matching System**
+1. **Multiple Audio Providers**
+   - Built-in WAV sample playback (default)
+   - ElevenLabs TTS with custom Callisto2 voice ID
+   - Local TTS engine support (Piper, macOS Say)
+   - Pre-recorded Callisto2 voice clip playback
+
+2. **Haptic Feedback**
+   - Logitech MX Master 4 integration via external `logitech-haptic` utility
+   - Configurable events: response, complete, error
+
+3. **Status Pattern Matching**
    - 14 regex patterns to detect completion/status messages
    - Case-insensitive matching
-   - Covers common CI/CD and development workflow messages
+   - Verbosity levels: off, minimal, normal, verbose
 
-2. **Audio Notification System**
-   - Pseudo-random sound selection from 4 audio files
-   - Prevents consecutive repeats
-   - Volume set at 0.2 (20%) to match existing sounds
-
-3. **Anti-Spam Protection**
+4. **Anti-Spam Protection**
    - 3-second cooldown between notifications
    - 500-character rolling buffer for output monitoring
    - Settings-based enable/disable controls
@@ -103,9 +108,25 @@ node --check index.js
 - No external network requests
 - Proper input validation and buffer management
 
-## Future Enhancement Opportunities
-- Configurable patterns via settings
-- Different sound sets for different event types
-- Adjustable cooldown period
-- Per-pattern volume control
-- User-uploadable custom sounds
+5. **Extensible Architecture**
+   - Pluggable audio provider system
+   - Configuration-driven behaviour
+   - Non-blocking design for all audio and haptic operations
+
+### Files
+- `package.json` – Renamed to agent-callisto2
+- `.claude-plugin/plugin.json` – Updated manifest
+- `.claude-plugin/config.json` – Extended configuration
+- `.claude-plugin/hook.js` – Multi-provider hook implementation
+- `.claude-plugin/USAGE.md` – Updated usage guide
+- `README.md` – Complete rewrite for agent-callisto2
+- `IMPLEMENTATION_NOTES.md` – Updated documentation
+- `AGENT_VIBES_RESEARCH.md` – Research reference
+- `test-plugin.js` – Updated tests
+- `index.js` – Legacy Hyper terminal plugin (retained)
+
+## Roadmap
+- Extensive library of pre-recorded Callisto2 voice clips
+- Local TTS integration with Piper for offline voice synthesis
+- Configurable haptic patterns per event type
+- Web UI for configuration management

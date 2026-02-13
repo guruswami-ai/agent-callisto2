@@ -59,12 +59,13 @@ Our agent-callisto2 plugin:
 - ✅ Pattern matching (14 regex patterns)
 - ✅ Selective notifications (not all text)
 - ✅ Cooldown timer (3 seconds)
-- ✅ Menu toggle control
-- ❌ No verbosity levels
-- ❌ No filter customization
-- ❌ Fixed patterns (not configurable)
+- ✅ Verbosity levels (off, minimal, normal, verbose)
+- ✅ Multiple audio providers (samples, ElevenLabs, local TTS, pre-recorded)
+- ✅ Haptic feedback (Logitech MX Master 4)
+- ✅ Custom ElevenLabs voice (Callisto2)
+- ✅ Pre-recorded sample support for non-blocking feedback
 
-#### Potential Improvements Inspired by Agent Vibes
+#### Improvements Inspired by Agent Vibes (Implemented)
 
 ##### 1. **Add Verbosity Levels**
 ```javascript
@@ -95,7 +96,7 @@ const PATTERN_CATEGORIES = {
 };
 ```
 
-Then allow users to enable/disable categories.
+Then allow users to enable/disable categories. (Implemented in `index.js` via `PATTERN_CATEGORIES`.)
 
 ##### 3. **Filter Function System**
 ```javascript
@@ -146,22 +147,26 @@ Plugins
         └─ [ ] Verbose
 ```
 
-### Recommended Implementation Priority
+### Implementation Status
 
-#### Phase 1 (High Value, Low Complexity) ✅ CURRENT
+#### Phase 1 ✅ Complete
 - ✅ Basic pattern matching
 - ✅ Cooldown timer
 - ✅ Binary on/off toggle
 
-#### Phase 2 (High Value, Medium Complexity)
-- [ ] Add verbosity levels (minimal/normal/verbose)
-- [ ] Category-based filtering
-- [ ] Enhanced menu with verbosity options
+#### Phase 2 ✅ Complete
+- ✅ Verbosity levels (off/minimal/normal/verbose)
+- ✅ Category-based filtering
+- ✅ Enhanced menu with verbosity options
 
-#### Phase 3 (Medium Value, High Complexity)
-- [ ] Configuration file support
-- [ ] Custom pattern support
+#### Phase 3 (In Progress)
+- ✅ Configuration file support (`config.json`)
+- ✅ ElevenLabs TTS with custom Callisto2 voice
+- ✅ Haptic feedback (Logitech MX Master 4)
+- ✅ Local TTS engine support
+- ✅ Pre-recorded sample support
 - [ ] Per-category volume control
+- [ ] Configurable haptic patterns
 
 ### Code Changes for Phase 2
 
