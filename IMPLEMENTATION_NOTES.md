@@ -59,12 +59,14 @@ The `getRandom()` function ensures consecutive notifications don't use the same 
 3. **Global Settings**: Maintains state via `global.settings.notificationsEnabled`
 4. **Proper Cleanup**: Restores original write method on component unmount to prevent memory leaks
 
+Note: The Hyper terminal integration is currently broken due to xterm.js migration. The primary focus is now on Claude Code plugin support.
+
 ## Usage
 
 ### For Users
 1. Install the plugin as documented in README.md
-2. Access Hyper menu: **Plugins > Status notification sounds**
-3. Toggle to enable/disable audio notifications
+2. For Hyper terminal (legacy): Access menu **Plugins > Status notification sounds**
+3. For Claude Code: Configure via `.claude-plugin/config.json`
 4. Run commands that produce status messages to hear notifications
 
 ### For Developers
