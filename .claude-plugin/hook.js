@@ -15,7 +15,7 @@
 
 const path = require('path');
 const fs = require('fs');
-const { execFile } = require('child_process');
+const tts = require('./elevenlabs-tts');
 
 // Get the root directory of the plugin
 const pluginRoot = path.join(__dirname, '..');
@@ -329,8 +329,8 @@ function playEnterSound() {
  * @param {string} context.chunk - The text chunk being streamed
  * @param {boolean} context.isComplete - Whether this is the final chunk
  */
-async function onStreamingResponse(context) {
-  // Lazy initialization of sample players
+function onStreamingResponse(context) {
+  // Lazy initialization
   if (!audioPlayers) {
     audioPlayers = initializePlayers();
   }
@@ -340,57 +340,29 @@ async function onStreamingResponse(context) {
   if (!config.enabled) {
     return;
   }
-
-  // Haptic feedback on completion
-  if (isComplete) {
-    triggerHaptic('complete');
-    hapticResponseTriggered = false;
-    return;
-  }
-
-  if (!chunk) {
-    return;
-  }
-
-  // Haptic pulse on first response chunk only
-  if (!hapticResponseTriggered && chunk.length > 0) {
-    triggerHaptic('response');
-    hapticResponseTriggered = true;
-  }
-
-  const provider = config.audioProvider || 'samples';
-
-  if (provider === 'elevenlabs') {
-    speakElevenLabs(chunk);
-    return;
-  }
-
-  if (provider === 'local-tts') {
-    speakLocalTts(chunk);
-    return;
-  }
-
-  if (provider === 'prerecorded') {
-    playPreRecordedSample();
-    return;
-  }
-
-  // Default: built-in sample playback
+  
+  // Play sounds for each character in the chunk asynchronously
+  // without blocking the streaming response
+  let delay = 0;
   for (let i = 0; i < chunk.length; i++) {
     const char = chunk[i];
     
-    // Play enter sound for newlines
-    if (char === '\n') {
-      playEnterSound();
-    } else if (/\S/.test(char)) {
-      // Play character sound for non-whitespace characters
-      playCharSound();
-    }
+    // Schedule sound playback without blocking
+    // Use IIFE to capture char value correctly for each iteration
+    ((currentChar) => {
+      setTimeout(() => {
+        // Play enter sound for newlines
+        if (currentChar === '\n') {
+          playEnterSound();
+        } else if (/\S/.test(currentChar)) {
+          // Play character sound for non-whitespace characters
+          playCharSound();
+        }
+      }, delay);
+    })(char);
     
-    // Add a small delay between sounds to avoid overwhelming
-    if (i < chunk.length - 1) {
-      await new Promise(resolve => setTimeout(resolve, config.throttleMs));
-    }
+    // Increment delay for next character
+    delay += config.throttleMs;
   }
 }
 
@@ -401,16 +373,142 @@ function setEnabled(enabled) {
   config.enabled = enabled;
 }
 
+// Pattern categories for detecting completion events (inspired by Agent Vibes)
+const PATTERN_CATEGORIES = {
+  CRITICAL: [
+    /error/i,
+    /failed/i,
+    /failure/i,
+    /fatal/i
+  ],
+  COMPLETION: [
+    /completed/i,
+    /succeeded/i,
+    /successful/i,
+    /tests? passed/i,
+    /build succeeded/i,
+    /deployment complete/i,
+    /code review completed/i,
+    /review completed/i,
+    /task completed/i,
+    /merge completed/i,
+    /successfully merged/i
+  ],
+  APPROVAL: [
+    /approval (required|requested)/i,
+    /ready for review/i,
+    /waiting for approval/i
+  ]
+};
+
+// Track recent notifications to avoid spam
+let lastTTSTime = 0;
+const TTS_COOLDOWN = 5000; // 5 seconds between TTS announcements
+
 /**
- * Get the current configuration (useful for programmatic access)
+ * Detect if text contains a notification pattern
+ * @param {string} text - Text to check
+ * @returns {string|null} - Category name if match found, null otherwise
  */
-function getConfig() {
-  return { ...config };
+function detectNotificationCategory(text) {
+  for (const [category, patterns] of Object.entries(PATTERN_CATEGORIES)) {
+    if (patterns.some(pattern => pattern.test(text))) {
+      return category;
+    }
+  }
+  return null;
+}
+
+/**
+ * Check if TTS should be triggered for this text
+ * @param {string} text - Text to analyze
+ * @returns {boolean}
+ */
+function shouldTriggerTTS(text) {
+  if (!config.tts || !config.tts.enabled) {
+    return false;
+  }
+  
+  const now = Date.now();
+  if (now - lastTTSTime < TTS_COOLDOWN) {
+    return false;
+  }
+  
+  const category = detectNotificationCategory(text);
+  if (category) {
+    lastTTSTime = now;
+    return true;
+  }
+  
+  return false;
+}
+
+// Buffer to accumulate text for pattern matching
+let outputBuffer = '';
+const BUFFER_SIZE = 500; // Keep last 500 characters
+
+/**
+ * Hook handler for completion events
+ * This can be called when tasks complete to trigger TTS
+ * 
+ * @param {Object} context - Hook context with completion information
+ * @param {string} context.message - The completion message
+ * @param {string} context.status - The status (success, error, etc.)
+ */
+async function onCompletion(context) {
+  if (!config.tts || !config.tts.enabled) {
+    return;
+  }
+  
+  const { message, status } = context;
+  
+  // Determine category based on status
+  let category = 'COMPLETION';
+  if (status === 'error' || status === 'failed') {
+    category = 'CRITICAL';
+  } else if (status === 'approval_needed' || status === 'review_needed') {
+    category = 'APPROVAL';
+  }
+  
+  // Trigger TTS in non-blocking way
+  if (message) {
+    tts.speakNotification(message, category, config);
+  }
+}
+
+/**
+ * Process streamed text for notification patterns
+ * This monitors streaming output for completion patterns
+ * 
+ * @param {string} text - Text chunk to process
+ */
+function processStreamingText(text) {
+  if (!text || !config.tts || !config.tts.enabled) {
+    return;
+  }
+  
+  // Append to buffer
+  outputBuffer += text;
+  
+  // Keep buffer size manageable
+  if (outputBuffer.length > BUFFER_SIZE) {
+    outputBuffer = outputBuffer.slice(-BUFFER_SIZE);
+  }
+  
+  // Check for notification patterns
+  if (shouldTriggerTTS(outputBuffer)) {
+    const category = detectNotificationCategory(outputBuffer);
+    if (category) {
+      // Trigger TTS in non-blocking way
+      tts.speakNotification(outputBuffer, category, config);
+    }
+  }
 }
 
 // Export the hook
 module.exports = {
   onStreamingResponse,
+  onCompletion,
   setEnabled,
-  getConfig,
+  processStreamingText
 };

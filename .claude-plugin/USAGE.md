@@ -1,4 +1,4 @@
-# Agent Callisto2 – Claude CLI Plugin
+# Agent Callisto 2 Claude Code Plugin
 
 Example usage and integration guide.
 

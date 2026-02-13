@@ -1,18 +1,15 @@
-# Agent Callisto2
+# Agent Callisto 2 - Terminal Sound Effects Plugin
 
-A Claude CLI plugin that provides audio and haptic feedback for response status — similar in spirit to [Agent Vibes](https://github.com/mberman84/agent-vibes). It features a custom ElevenLabs voice (Callisto2) and haptic feedback through the Logitech MX Master 4 mouse. These hardware-specific requirements are unique to the developer, but the code is designed to be extended with local TTS engines or pre-recorded audio samples.
+Add Fallout terminal sound effects to your terminal or AI assistant! This plugin brings the iconic keyboard sounds from [Fallout](https://en.wikipedia.org/wiki/Fallout_(series)) [3](https://en.wikipedia.org/wiki/Fallout_3)/[NV](https://en.wikipedia.org/wiki/Fallout:_New_Vegas) to your computing experience.
 
 ## Features
 
-- 🎙️ **ElevenLabs TTS** – Custom Callisto2 voice ID for spoken feedback on Claude CLI responses
-- 🖱️ **Haptic Feedback** – Logitech MX Master 4 integration for tactile response status cues
-- 🔊 **Built-in Sample Sounds** – Keystroke audio effects while Claude streams responses
-- 🗣️ **Local TTS Support** – Extensible to Piper, macOS Say, or other local TTS engines
-- 🎵 **Pre-recorded Samples** – Support for pre-recorded Callisto2 voice clips for non-blocking feedback
-- 🎚️ **Verbosity Levels** – Off / Minimal / Normal / Verbose notification control
-- 🔌 **Claude CLI Plugin** – Hooks into Claude Code's streaming response system
-
-## Audio Providers
+- 🎮 Authentic Fallout terminal keyboard sounds
+- 🤖 **NEW**: Claude Code plugin support - hear keystrokes as Claude streams responses
+- 🔊 **NEW**: Optional Elevenlabs TTS integration for voice announcements of task completions
+- 🖥️ Original Hyper terminal extension support (currently broken due to xterm.js migration)
+- 🔔 **NEW**: Intelligent status notification sounds with verbosity control
+- 🎛️ Configurable sound volume and behavior
 
 Agent Callisto2 supports multiple audio providers, configured via `audioProvider` in `.claude-plugin/config.json`:
 
@@ -42,41 +39,31 @@ Edit `.claude-plugin/config.json` to customise behaviour:
 
 ```json
 {
-  "enabled": true,
-  "volume": 0.2,
-  "playOnStreamingOnly": true,
-  "throttleMs": 10,
-  "audioProvider": "samples",
-  "elevenlabs": {
-    "apiKey": "",
-    "voiceId": "",
-    "modelId": "eleven_monolingual_v1",
-    "voiceName": "Callisto2"
-  },
-  "haptic": {
-    "enabled": false,
-    "device": "logitech-mx-master-4",
-    "onResponse": true,
-    "onComplete": true,
-    "onError": true
-  },
-  "localTts": {
-    "enabled": false,
-    "engine": "piper",
-    "voice": "default"
-  },
-  "preRecordedSamples": {
-    "enabled": false,
-    "samplesDir": "samples/callisto2"
+  "enabled": true,          // Enable/disable sound effects
+  "volume": 0.2,            // Volume level (0.0 to 1.0)
+  "playOnStreamingOnly": true,  // Only play during streaming (not on finished responses)
+  "throttleMs": 10,         // Delay between character sounds in milliseconds
+  "tts": {
+    "enabled": false,       // Enable Elevenlabs TTS for status announcements
+    "apiKey": "",           // Your Elevenlabs API key (or use ELEVENLABS_API_KEY env var)
+    "voiceId": "21m00Tcm4TlvDq8ikWAM",  // Voice ID (default: Rachel)
+    "volume": 0.3           // TTS volume level (0.0 to 1.0)
   }
 }
 ```
 
-### ElevenLabs Setup
+##### Text-to-Speech (TTS) Feature
 
-1. Obtain an API key from [ElevenLabs](https://elevenlabs.io).
-2. Create or select a custom voice (the project uses a voice named **Callisto2**).
-3. Set `audioProvider` to `"elevenlabs"` and fill in `elevenlabs.apiKey` and `elevenlabs.voiceId`.
+**NEW**: Optional Elevenlabs TTS integration for announcing task completions! 
+
+- **Non-blocking**: Announcements happen in the background without delaying output
+- **Smart**: Only speaks short, relevant summaries (following "agent vibes" philosophy)
+- **Optional**: Disabled by default - enable in config when you want it
+
+See [.claude-plugin/TTS_README.md](.claude-plugin/TTS_README.md) for detailed TTS setup and configuration.
+
+
+#### How It Works
 
 ### Haptic Feedback Setup
 
@@ -89,7 +76,11 @@ Events that trigger haptic pulses:
 
 ### Local TTS
 
-Set `audioProvider` to `"local-tts"` and configure the engine:
+**No sounds playing?**
+- Make sure the plugin is installed in the correct directory (`~/.claude/plugins/agent-callisto2`)
+- Check that `config.json` has `"enabled": true`
+- Restart Claude Code after installation
+- Ensure your browser allows audio playback (some browsers require user interaction first)
 
 ```json
 {
@@ -164,4 +155,4 @@ The original Hyper terminal extension code is retained in `index.js` for referen
 
 ## License
 
-GPL-3.0
+You need to `git clone` this repository into `~/.hyper_plugins/local/agent-callisto2` and add `agent-callisto2` to `localPlugins` in `.hyper.js`.

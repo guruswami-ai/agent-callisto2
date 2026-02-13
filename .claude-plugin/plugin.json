@@ -1,16 +1,22 @@
 {
   "name": "agent-callisto2",
-  "version": "2.0.0",
-  "description": "Claude CLI plugin with audio and haptic feedback for response status notifications, featuring ElevenLabs TTS (Callisto2 voice) and Logitech MX Master 4 haptic integration.",
+  "version": "1.0.0",
+  "description": "Adds Fallout terminal sound effects to Claude Code responses",
   "author": {
-    "name": "guruswami-ai"
+    "name": "guruswami-ai",
+    "url": "https://github.com/guruswami-ai"
   },
   "license": "GPL-3.0",
   "hooks": [
     {
       "name": "onStreamingResponse",
       "entry": "hook.js",
-      "description": "Plays audio feedback and triggers haptic events as Claude streams responses"
+      "description": "Plays keyboard sounds as Claude streams responses"
+    },
+    {
+      "name": "onCompletion",
+      "entry": "hook.js",
+      "description": "Announces task completion using Elevenlabs TTS (optional)"
     }
   ]
 }

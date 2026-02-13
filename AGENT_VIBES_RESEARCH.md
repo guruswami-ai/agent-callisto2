@@ -1,4 +1,4 @@
-# Agent Vibes Research & Application to Agent Callisto2
+# Agent Vibes Research & Application to Agent Callisto 2
 
 ## Agent Vibes TTS System Analysis
 
@@ -52,10 +52,10 @@ Supports multiple TTS backends:
 - Termux (Android)
 - ElevenLabs (premium, cloud)
 
-### How This Applies to Agent Callisto2
+### How This Applies to Agent Callisto 2
 
 #### Current Implementation
-Agent Callisto2:
+Our agent-callisto2 plugin:
 - ✅ Pattern matching (14 regex patterns)
 - ✅ Selective notifications (not all text)
 - ✅ Cooldown timer (3 seconds)
@@ -117,8 +117,9 @@ function shouldNotify(text, verbosityLevel) {
 ```
 
 ##### 4. **Configuration File Support**
-Similar to Agent Vibes' `.claude/tts-voice.txt`, Agent Callisto2 uses:
-- `.claude-plugin/config.json` – plugin configuration
+Similar to Agent Vibes' `.claude/tts-voice.txt`, we could support:
+- `.agent-callisto2-config.json` in user's home directory
+- Project-specific: `./.agent-callisto2-config`
 
 ```json
 {
@@ -262,4 +263,4 @@ Agent Vibes' verbosity control is a clever solution that:
 - **Empowers users** to customize their experience
 - **Uses simple pattern categorization** for filtering
 
-Agent Callisto2 has adopted this approach, extending it with ElevenLabs TTS, haptic feedback, and multiple audio providers to create a comprehensive feedback system for Claude CLI.
+We can adopt this approach in agent-callisto2 with minimal changes to the existing codebase, significantly improving the user experience while maintaining the core functionality.

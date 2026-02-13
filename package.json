@@ -1,10 +1,10 @@
 {
   "name": "agent-callisto2",
-  "version": "2.0.0",
-  "description": "Claude CLI plugin with audio and haptic feedback featuring ElevenLabs TTS voice (Callisto2) and Logitech MX Master 4 haptic integration.",
+  "version": "1.0.0",
+  "description": "Adds Fallout terminal sound effects to your Hyper terminal and Claude Code - with intelligent status notifications.",
   "main": "index.js",
   "scripts": {
-    "test": "node test-plugin.js"
+    "test": "node test-plugin.js && node test-tts.js"
   },
   "author": "guruswami-ai",
   "license": "GPL-3.0",
@@ -14,15 +14,16 @@
     "url": "git+https://github.com/guruswami-ai/agent-callisto2.git"
   },
   "keywords": [
+    "vault-tec",
+    "robco",
     "claude-code",
     "claude-plugin",
-    "claude-cli",
-    "agent-vibes",
-    "tts",
-    "elevenlabs",
-    "haptic-feedback",
+    "fallout",
+    "terminal",
+    "sound-effects",
     "audio",
-    "callisto2",
-    "logitech-mx-master"
+    "elevenlabs",
+    "tts",
+    "text-to-speech"
   ]
 }

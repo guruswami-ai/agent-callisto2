@@ -6,7 +6,7 @@
 
 const path = require('path');
 
-console.log('Testing agent-callisto2 Claude CLI plugin...\n');
+console.log('Testing Agent Callisto 2 Claude Code plugin...\n');
 
 // Test 1: Load the hook module
 console.log('Test 1: Loading hook module...');
