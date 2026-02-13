@@ -4,7 +4,7 @@
   "description": "Adds Fallout terminal sound effects to your Hyper terminal and Claude Code - with intelligent status notifications.",
   "main": "index.js",
   "scripts": {
-    "test": "node test-plugin.js"
+    "test": "node test-plugin.js && node test-tts.js"
   },
   "author": "guruswami-ai",
   "license": "GPL-3.0",
@@ -22,7 +22,8 @@
     "terminal",
     "sound-effects",
     "audio",
-    "notifications",
-    "status-notifications"
+    "elevenlabs",
+    "tts",
+    "text-to-speech"
   ]
 }

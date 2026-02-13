@@ -12,6 +12,11 @@
       "name": "onStreamingResponse",
       "entry": "hook.js",
       "description": "Plays keyboard sounds as Claude streams responses"
+    },
+    {
+      "name": "onCompletion",
+      "entry": "hook.js",
+      "description": "Announces task completion using Elevenlabs TTS (optional)"
     }
   ]
 }

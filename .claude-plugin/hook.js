@@ -5,6 +5,7 @@
 
 const path = require('path');
 const fs = require('fs');
+const tts = require('./elevenlabs-tts');
 
 // Get the root directory of the plugin
 const pluginRoot = path.join(__dirname, '..');
@@ -155,6 +156,9 @@ async function onStreamingResponse(context) {
     return;
   }
   
+  // Process text for notification patterns (TTS)
+  processStreamingText(chunk);
+  
   // Play sounds for each character in the chunk
   for (let i = 0; i < chunk.length; i++) {
     const char = chunk[i];
@@ -181,8 +185,142 @@ function setEnabled(enabled) {
   config.enabled = enabled;
 }
 
+// Pattern categories for detecting completion events (inspired by Agent Vibes)
+const PATTERN_CATEGORIES = {
+  CRITICAL: [
+    /error/i,
+    /failed/i,
+    /failure/i,
+    /fatal/i
+  ],
+  COMPLETION: [
+    /completed/i,
+    /succeeded/i,
+    /successful/i,
+    /tests? passed/i,
+    /build succeeded/i,
+    /deployment complete/i,
+    /code review completed/i,
+    /review completed/i,
+    /task completed/i,
+    /merge completed/i,
+    /successfully merged/i
+  ],
+  APPROVAL: [
+    /approval (required|requested)/i,
+    /ready for review/i,
+    /waiting for approval/i
+  ]
+};
+
+// Track recent notifications to avoid spam
+let lastTTSTime = 0;
+const TTS_COOLDOWN = 5000; // 5 seconds between TTS announcements
+
+/**
+ * Detect if text contains a notification pattern
+ * @param {string} text - Text to check
+ * @returns {string|null} - Category name if match found, null otherwise
+ */
+function detectNotificationCategory(text) {
+  for (const [category, patterns] of Object.entries(PATTERN_CATEGORIES)) {
+    if (patterns.some(pattern => pattern.test(text))) {
+      return category;
+    }
+  }
+  return null;
+}
+
+/**
+ * Check if TTS should be triggered for this text
+ * @param {string} text - Text to analyze
+ * @returns {boolean}
+ */
+function shouldTriggerTTS(text) {
+  if (!config.tts || !config.tts.enabled) {
+    return false;
+  }
+  
+  const now = Date.now();
+  if (now - lastTTSTime < TTS_COOLDOWN) {
+    return false;
+  }
+  
+  const category = detectNotificationCategory(text);
+  if (category) {
+    lastTTSTime = now;
+    return true;
+  }
+  
+  return false;
+}
+
+// Buffer to accumulate text for pattern matching
+let outputBuffer = '';
+const BUFFER_SIZE = 500; // Keep last 500 characters
+
+/**
+ * Hook handler for completion events
+ * This can be called when tasks complete to trigger TTS
+ * 
+ * @param {Object} context - Hook context with completion information
+ * @param {string} context.message - The completion message
+ * @param {string} context.status - The status (success, error, etc.)
+ */
+async function onCompletion(context) {
+  if (!config.tts || !config.tts.enabled) {
+    return;
+  }
+  
+  const { message, status } = context;
+  
+  // Determine category based on status
+  let category = 'COMPLETION';
+  if (status === 'error' || status === 'failed') {
+    category = 'CRITICAL';
+  } else if (status === 'approval_needed' || status === 'review_needed') {
+    category = 'APPROVAL';
+  }
+  
+  // Trigger TTS in non-blocking way
+  if (message) {
+    tts.speakNotification(message, category, config);
+  }
+}
+
+/**
+ * Process streamed text for notification patterns
+ * This monitors streaming output for completion patterns
+ * 
+ * @param {string} text - Text chunk to process
+ */
+function processStreamingText(text) {
+  if (!text || !config.tts || !config.tts.enabled) {
+    return;
+  }
+  
+  // Append to buffer
+  outputBuffer += text;
+  
+  // Keep buffer size manageable
+  if (outputBuffer.length > BUFFER_SIZE) {
+    outputBuffer = outputBuffer.slice(-BUFFER_SIZE);
+  }
+  
+  // Check for notification patterns
+  if (shouldTriggerTTS(outputBuffer)) {
+    const category = detectNotificationCategory(outputBuffer);
+    if (category) {
+      // Trigger TTS in non-blocking way
+      tts.speakNotification(outputBuffer, category, config);
+    }
+  }
+}
+
 // Export the hook
 module.exports = {
   onStreamingResponse,
+  onCompletion,
   setEnabled,
+  processStreamingText
 };
