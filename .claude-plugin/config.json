@@ -2,5 +2,14 @@
   "enabled": true,
   "volume": 0.2,
   "playOnStreamingOnly": true,
-  "throttleMs": 10
+  "throttleMs": 10,
+  "tts": {
+    "enabled": false,
+    "apiKey": "",
+    "voiceId": "21m00Tcm4TlvDq8ikWAM",
+    "modelId": "eleven_monolingual_v1",
+    "stability": 0.5,
+    "similarityBoost": 0.75,
+    "volume": 0.3
+  }
 }
