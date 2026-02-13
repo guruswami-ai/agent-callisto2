@@ -1,17 +1,14 @@
-# RobCo™ Vault Terminal Adaptation Program™ (VTAP)
-_Still using that out-of-date, silent terminal? Wishing your machine clicked like the rest? Prepare For The Future™ and upgrade today for FREE!*_
+# Agent Callisto 2 - Terminal Sound Effects Plugin
 
-_*VaultTec vault subscription required._
-
-Add Fallout terminal sound effects to your terminal or AI assistant! This plugin brings the iconic keyboard sounds from [Fallout](https://en.wikipedia.org/wiki/Fallout_(series)) [3](https://en.wikipedia.org/wiki/Fallout_3)/[NV](https://en.wikipedia.org/wiki/Fallout:_New_Vegas) to your 21st century computing experience.
+Add Fallout terminal sound effects to your terminal or AI assistant! This plugin brings the iconic keyboard sounds from [Fallout](https://en.wikipedia.org/wiki/Fallout_(series)) [3](https://en.wikipedia.org/wiki/Fallout_3)/[NV](https://en.wikipedia.org/wiki/Fallout:_New_Vegas) to your computing experience.
 
 ## Features
 
 - 🎮 Authentic Fallout terminal keyboard sounds
 - 🤖 **NEW**: Claude Code plugin support - hear keystrokes as Claude streams responses
 - 🖥️ Original Hyper terminal extension support (currently broken due to xterm.js migration)
-
-## Features
+- 🔔 **NEW**: Intelligent status notification sounds with verbosity control
+- 🎛️ Configurable sound volume and behavior
 
 ### Keyboard Sound Effects
 Terminal sounds play when typing, including different sounds for regular keys, arrow keys, and Enter.
@@ -45,10 +42,8 @@ Play terminal sounds as Claude streams its responses:
 
 1. Clone this repository into your Claude Code plugins directory:
    ```bash
-   git clone https://github.com/YOUR_USERNAME/hyper-robco ~/.claude/plugins/hyper-robco
+   git clone https://github.com/guruswami-ai/agent-callisto2 ~/.claude/plugins/agent-callisto2
    ```
-   
-   Replace `YOUR_USERNAME` with your GitHub username if you forked the repository.
 
 2. The plugin will be automatically detected by Claude Code on restart
 
@@ -80,7 +75,7 @@ All sounds are from Fallout 3/New Vegas terminal interfaces.
 #### Troubleshooting
 
 **No sounds playing?**
-- Make sure the plugin is installed in the correct directory (`~/.claude/plugins/hyper-robco`)
+- Make sure the plugin is installed in the correct directory (`~/.claude/plugins/agent-callisto2`)
 - Check that `config.json` has `"enabled": true`
 - Restart Claude Code after installation
 - Ensure your browser allows audio playback (some browsers require user interaction first)
@@ -105,4 +100,4 @@ This will check that all required files are present and properly formatted.
 
 **Note**: Currently broken since Hyper migrated from `hterm` to `xterm.js`. Keeping for future reference.
 
-You need to `git clone` this repository into `~/.hyper_plugins/local/hyper-robco` and add `hyper-robco` to `localPlugins` in `.hyper.js`.
+You need to `git clone` this repository into `~/.hyper_plugins/local/agent-callisto2` and add `agent-callisto2` to `localPlugins` in `.hyper.js`.

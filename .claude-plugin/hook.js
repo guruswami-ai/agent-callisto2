@@ -25,7 +25,7 @@ try {
     config = { ...config, ...JSON.parse(configData) };
   }
 } catch (err) {
-  console.warn('Failed to load hyper-robco config:', err.message);
+  console.warn('Failed to load agent-callisto2 config:', err.message);
 }
 
 // Sound files configuration
