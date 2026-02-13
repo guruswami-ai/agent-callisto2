@@ -5,7 +5,7 @@
 
 const path = require('path');
 
-console.log('Testing vault-tap Claude Code plugin...\n');
+console.log('Testing Agent Callisto 2 Claude Code plugin...\n');
 
 // Test 1: Load the hook module
 console.log('Test 1: Loading hook module...');
@@ -51,7 +51,7 @@ try {
   
   console.log('\n✅ All tests passed!');
   console.log('\nThe plugin is ready to be used with Claude Code.');
-  console.log('Install it by copying this directory to ~/.claude/plugins/vault-tap\n');
+  console.log('Install it by copying this directory to ~/.claude/plugins/agent-callisto2\n');
   
 } catch (error) {
   console.error('✗ Test failed:', error.message);

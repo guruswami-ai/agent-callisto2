@@ -1,7 +1,7 @@
 # Status Notification Audio System - Implementation Notes
 
 ## Overview
-This implementation adds audio notifications to the vault-tap plugin for status updates and completion messages. The system is designed to provide unobtrusive audio feedback for important terminal events without overwhelming the user.
+This implementation adds audio notifications to the Agent Callisto 2 terminal plugin for status updates and completion messages. The system is designed to provide unobtrusive audio feedback for important terminal events without overwhelming the user.
 
 ## Research Summary
 

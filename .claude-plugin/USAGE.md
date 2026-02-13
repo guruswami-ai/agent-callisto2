@@ -1,11 +1,11 @@
-# vault-tap Claude Code Plugin
+# Agent Callisto 2 Claude Code Plugin
 
 Example usage and integration guide.
 
 ## Plugin Structure
 
 ```
-vault-tap/
+agent-callisto2/
 ├── .claude-plugin/
 │   ├── plugin.json       # Plugin manifest
 │   ├── config.json       # User configuration

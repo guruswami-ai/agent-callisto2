@@ -1,10 +1,10 @@
 {
-  "name": "vault-tap",
+  "name": "agent-callisto2",
   "version": "1.0.0",
   "description": "Adds Fallout terminal sound effects to Claude Code responses",
   "author": {
-    "name": "Smiley Barry",
-    "email": "smiley@users.noreply.github.com"
+    "name": "guruswami-ai",
+    "url": "https://github.com/guruswami-ai"
   },
   "license": "GPL-3.0",
   "hooks": [
@@ -12,6 +12,11 @@
       "name": "onStreamingResponse",
       "entry": "hook.js",
       "description": "Plays keyboard sounds as Claude streams responses"
+    },
+    {
+      "name": "onCompletion",
+      "entry": "hook.js",
+      "description": "Announces task completion using Elevenlabs TTS (optional)"
     }
   ]
 }

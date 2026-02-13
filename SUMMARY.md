@@ -1,7 +1,7 @@
 # Status Notification Audio System - Summary
 
 ## Project Overview
-Successfully implemented an audio notification system for the vault-tap plugin that plays sounds when meaningful status messages appear in terminal output.
+Successfully implemented an audio notification system for the Agent Callisto 2 terminal plugin that plays sounds when meaningful status messages appear in terminal output.
 
 ## What Was Implemented
 
@@ -90,9 +90,9 @@ node --check index.js
 ```
 
 ## Usage Instructions
-1. Install plugin in `~/.hyper_plugins/local/vault-tap` (for Hyper terminal - legacy)
-2. Or install in `~/.claude/plugins/vault-tap` (for Claude Code - primary)
-3. Add `vault-tap` to `localPlugins` in `.hyper.js` (for Hyper)
+1. Install plugin in `~/.hyper_plugins/local/agent-callisto2` or `~/.claude/plugins/agent-callisto2`
+2. For Hyper: Add `agent-callisto2` to `localPlugins` in `.hyper.js`
+3. For Claude Code: Plugin auto-detected on restart
 4. Open Hyper menu → Plugins → Status notification sounds (toggle)
 5. Run commands that produce status messages (builds, tests, etc.)
 6. Audio notifications will play when completion messages appear
